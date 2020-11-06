@@ -1,5 +1,6 @@
 #include "Board.h"
 
+
 Board::Board() :
 		separatorColor(sf::Color(100, 150, 150)),
 		fieldSize(sf::Vector2f(80.0f, 80.0f)), offset(sf::Vector2f(20.0f, 20.0f)),
@@ -34,6 +35,23 @@ Board::Board() :
 		r.setFillColor(separatorColor);
 		vecSeparator.push_back(r);
 	}
+}
+
+
+bool Board::mouseAction(sf::Vector2i mousePos, bool buttonPressed, bool buttonReleased, int fieldValue)
+{
+	for (size_t x = 0; x < board[x].size(); x++)
+	{
+		for (size_t y = 0; y < board[y].size(); y++)
+		{
+			if(board[x][y]->mouseAction(mousePos, buttonPressed, buttonReleased))
+			{
+				board[x][y]->setValue(fieldValue);
+			}
+		}
+	}
+
+	return true;
 }
 
 void Board::draw(sf::RenderTarget &target) const

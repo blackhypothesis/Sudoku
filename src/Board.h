@@ -25,6 +25,7 @@ private:
 	FontConsolas fontConsolas;
 
 public:
+	bool mouseAction(sf::Vector2i, bool, bool, int);
 	void draw(sf::RenderTarget& target) const;
 
 };
