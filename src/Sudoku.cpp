@@ -9,13 +9,13 @@ int main()
 	const unsigned int windowX = 900;
 	const unsigned int windowY = 900;
 
-	int nFPS = 30;
+	int nFPS = 60;
 	sf::Clock clock;
 
 	sf::Vector2i mousePos;
 	bool buttonPressed;
 	bool buttonReleased;
-	int fieldValue = 0;
+	int fieldValue = -1;
 
 	sf::RenderWindow window;
 	window.create(sf::VideoMode(windowX, windowY), "Sudoku");
@@ -58,34 +58,33 @@ int main()
 				mousePos = { event.mouseButton.x, event.mouseButton.y };
 			}
 
-		if (event.type == sf::Event::KeyPressed)
-		{
-			std::cout << "key pressed" << std::endl;
-
-			if (event.key.code == sf::Keyboard::A)
-				fieldValue = 0;
-			if (event.key.code == sf::Keyboard::Num1)
-				fieldValue = 1;
-			if (event.key.code == sf::Keyboard::Num2)
-				fieldValue = 2;
-			if (event.key.code == sf::Keyboard::Num3)
-				fieldValue = 3;
-			if (event.key.code == sf::Keyboard::Num4)
-				fieldValue = 4;
-			if (event.key.code == sf::Keyboard::Num5)
-				fieldValue = 5;
-			if (event.key.code == sf::Keyboard::Num6)
-				fieldValue = 6;
-			if (event.key.code == sf::Keyboard::Num7)
-				fieldValue = 7;
-		}
-
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0))
+		    fieldValue = 0;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
 		    fieldValue = 1;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
+		    fieldValue = 2;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3))
+		    fieldValue = 3;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num4))
+		    fieldValue = 4;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num5))
+		    fieldValue = 5;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num6))
+		    fieldValue = 6;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num7))
+		    fieldValue = 7;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num8))
+		    fieldValue = 8;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num9))
+		    fieldValue = 9;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::L))
+		    fieldValue = 10; // toggle Lock of field
 
-		std::cout << "fieldValue = " << fieldValue << std::endl;
+		std::cout << fieldValue << std::endl;
 
 		board.mouseAction(mousePos, buttonPressed, buttonReleased, fieldValue);
+		fieldValue = -1;
 
 
 		window.clear();

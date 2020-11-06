@@ -20,9 +20,9 @@ private:
 	const sf::Vector2f fieldSize;
 	const sf::Vector2f offset;
 	const sf::Vector2f distance;
-
-
 	FontConsolas fontConsolas;
+	bool enableSetValue;
+
 
 public:
 	bool mouseAction(sf::Vector2i, bool, bool, int);

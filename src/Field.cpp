@@ -3,15 +3,17 @@
 Field::Field(sf::Font& fc) :
 		value(0),
 		focus(false),
+		lock(false),
 		size(sf::Vector2f(80.0f, 80.0f)),
 		defaultColor(sf::Color(50, 50, 50)),
 		focusColor(sf::Color(100, 100, 50)),
+		lockColor(sf::Color(50, 100, 230)),
 		valueTextOffset(sf::Vector2f(25, 7))
 {
 	this->fontConsolas = fc;
 	rect.setSize(sf::Vector2f(size));
 	color = defaultColor;
-	setColor(color);
+	setColor();
 
     // fontConsolas.loadFromFile("/home/marcel/workspace/Sudoku/assets/Consolas.ttf");
 
@@ -49,6 +51,22 @@ int Field::getValue() const
 }
 
 
+void Field::toggleLock()
+{
+	lock = !lock;
+
+	if (lock)
+		color = lockColor;
+	else
+		color = defaultColor;
+
+	setColor();
+
+	std::cout << "lock toggled: " << lock << std::endl;
+
+}
+
+
 void Field::setPosition(sf::Vector2f position)
 {
 	this->position = position;
@@ -71,13 +89,20 @@ bool Field::mouseAction(sf::Vector2i mousePos, bool buttonPressed, bool buttonRe
 	if (focus)
 	{
 		color = focusColor;
-		setColor(color);
+		setColor();
 		return true;
 	}
 	else
 	{
-		color = defaultColor;
-		setColor(color);
+		if(!lock)
+		{
+			color = defaultColor;
+		}
+		else
+		{
+			color = lockColor;
+		}
+		setColor();
 		return false;
 	}
 }
@@ -96,9 +121,8 @@ std::string Field::getText() const
 }
 
 
-void Field::setColor(sf::Color c)
+void Field::setColor()
 {
-	color = c;
 	rect.setFillColor(color);
 }
 

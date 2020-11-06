@@ -4,7 +4,8 @@
 Board::Board() :
 		separatorColor(sf::Color(100, 150, 150)),
 		fieldSize(sf::Vector2f(80.0f, 80.0f)), offset(sf::Vector2f(20.0f, 20.0f)),
-		distance(sf::Vector2f(7.0f, 7.0f))
+		distance(sf::Vector2f(7.0f, 7.0f)),
+		enableSetValue(true)
 {
 	for (size_t x = 0; x < board[x].size(); x++)
 	{
@@ -14,7 +15,7 @@ Board::Board() :
 			board[x][y] = std::make_unique<Field>(fontConsolas.fontConsolas);
 
 			board[x][y]->setPosition(sf::Vector2f(fieldSize.x * x + x * distance.x, fieldSize.y * y + y * distance.y) + offset + distance);
-			board[x][y]->setValue(y);
+			//board[x][y]->setValue(0);
 		}
 	}
 
@@ -44,9 +45,26 @@ bool Board::mouseAction(sf::Vector2i mousePos, bool buttonPressed, bool buttonRe
 	{
 		for (size_t y = 0; y < board[y].size(); y++)
 		{
-			if(board[x][y]->mouseAction(mousePos, buttonPressed, buttonReleased))
+			if(board[x][y]->mouseAction(mousePos, buttonPressed, buttonReleased) && fieldValue != -1)
 			{
-				board[x][y]->setValue(fieldValue);
+				if (fieldValue < 10)
+					board[x][y]->setValue(fieldValue);
+				else
+					board[x][y]->toggleLock();
+			}
+
+			if(board[x][y]->mouseAction(mousePos, buttonPressed, buttonReleased) && buttonPressed && enableSetValue)
+			{
+				int v = board[x][y]->getValue();
+				v++;
+				if (v > 9) v = 0;
+				board[x][y]->setValue(v);
+				enableSetValue = false;
+			}
+
+			if (buttonReleased)
+			{
+				enableSetValue = true;
 			}
 		}
 	}
