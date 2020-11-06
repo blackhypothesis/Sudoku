@@ -44,7 +44,7 @@ all: Sudoku
 Sudoku: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++  -o "Sudoku" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L/usr/lib64 -o "Sudoku" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
