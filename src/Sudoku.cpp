@@ -81,8 +81,6 @@ int main()
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::L))
 		    fieldValue = 10; // toggle Lock of field
 
-		std::cout << fieldValue << std::endl;
-
 		board.mouseAction(mousePos, buttonPressed, buttonReleased, fieldValue);
 		fieldValue = -1;
 

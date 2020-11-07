@@ -6,7 +6,7 @@
 #include <SFML/Graphics.hpp>
 
 
-#include <iostream>
+//#include <iostream>
 
 class Field
 {
@@ -15,30 +15,42 @@ public:
 
 private:
 	int value;
-	std::vector<int> possibilities;
+	sf::Vector2i position;
+
+	struct Possibility
+	{
+		sf::Vector2f drawPosition;
+		int possibleValue;
+		bool isPossible;
+		sf::Text possibleValueText;
+	};
+
+	std::array<Possibility, 10> aPossibility;
+
 	bool focus;
 	bool lock;
 
-	sf::Vector2f position;
-	sf::Vector2f size;
+	sf::Vector2f drawPosition;
+	const sf::Vector2f size;
 
 	sf::RectangleShape rect;
     sf::Text valueText;
-	sf::Color defaultColor;
-	sf::Color focusColor;
-	sf::Color lockColor;
+	const sf::Color defaultColor;
+	const sf::Color focusColor;
+	const sf::Color lockColor;
 	sf::Color color;
-    sf::Font fontConsolas;
-    sf::Vector2f valueTextOffset;
-
-    void setColor();
+    const sf::Font fontConsolas;
+    const sf::Vector2f valueTextOffset;
 
 public:
 	void setValue(int);
 	int getValue() const;
+
+	void setPosition(sf::Vector2i);
+	sf::Vector2i getPosition() const;
+
 	void toggleLock();
-	void setPosition(sf::Vector2f);
-	sf::Vector2f getPosition() const;
+	void setDrawPosition(sf::Vector2f);
 	bool mouseAction(sf::Vector2i, bool, bool);
 	void draw(sf::RenderTarget&) const;
 

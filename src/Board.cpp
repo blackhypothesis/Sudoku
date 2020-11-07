@@ -13,9 +13,8 @@ Board::Board() :
 		for (size_t y = 0; y < board[y].size(); y++)
 		{
 			board[x][y] = std::make_unique<Field>(fontConsolas.fontConsolas);
-
-			board[x][y]->setPosition(sf::Vector2f(fieldSize.x * x + x * distance.x, fieldSize.y * y + y * distance.y) + offset + distance);
-			//board[x][y]->setValue(0);
+			board[x][y]->setPosition(sf::Vector2i(x, y));
+			board[x][y]->setDrawPosition(sf::Vector2f(fieldSize.x * x + x * distance.x, fieldSize.y * y + y * distance.y) + offset + distance);
 		}
 	}
 
@@ -79,19 +78,9 @@ void Board::draw(sf::RenderTarget &target) const
 		for (size_t y = 0; y < board[y].size(); y++)
 
 		{
-			// target.draw(board[x][y].rect);
-			//target.draw(board[x][y].valueText);
-			// board[x][y].draw(target);;
-			// tmp.draw(target);
-
 			board[x][y]->draw(target);
-
-			// std::cout << "x = " << x << "  y = " << y << "    " << board[x][y]->getText() << std::endl;
-
 		}
 	}
-
-	//board[1][1].draw(target);
 
 	for (int x = 0; x < 8; x++)
 	{
