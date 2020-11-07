@@ -5,19 +5,19 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
 ../src/Board.cpp \
-../src/Field.cpp \
+../src/Cell.cpp \
 ../src/Resources.cpp \
 ../src/Sudoku.cpp 
 
 OBJS += \
 ./src/Board.o \
-./src/Field.o \
+./src/Cell.o \
 ./src/Resources.o \
 ./src/Sudoku.o 
 
 CPP_DEPS += \
 ./src/Board.d \
-./src/Field.d \
+./src/Cell.d \
 ./src/Resources.d \
 ./src/Sudoku.d 
 

@@ -6,15 +6,15 @@
 #include <SFML/Graphics.hpp>
 
 
-//#include <iostream>
-
-class Field
+class Cell
 {
 public:
-	Field(sf::Font&);
+	Cell(sf::Font&);
 
 private:
 	int value;
+	int foundValue;
+	bool foundPair;
 	sf::Vector2i position;
 
 	struct Possibility
@@ -35,9 +35,11 @@ private:
 
 	sf::RectangleShape rect;
     sf::Text valueText;
-	const sf::Color defaultColor;
+	sf::Color defaultColor;
 	const sf::Color focusColor;
 	const sf::Color lockColor;
+	const sf::Color foundValueColor;
+	const sf::Color foundPairValueCellColor;
 	sf::Color color;
     const sf::Font fontConsolas;
     const sf::Vector2f valueTextOffset;
@@ -48,6 +50,16 @@ public:
 
 	void setPosition(sf::Vector2i);
 	sf::Vector2i getPosition() const;
+
+	void setPossibleValues(std::vector<int>, bool);
+	std::vector<int> getPossibleValues() const;
+	void setFoundValue(int);
+	int getFoundValue() const;
+	void setFoundPair();
+
+	void initCellToDefault();
+	void setColor(sf::Color);
+
 
 	void toggleLock();
 	void setDrawPosition(sf::Vector2f);
