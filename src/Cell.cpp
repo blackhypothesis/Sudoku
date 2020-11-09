@@ -1,211 +1,193 @@
 #include "Cell.h"
 
 Cell::Cell(sf::Font &fc) :
-		value(0), foundValue(0), foundPair(false), focus(false), lock(false), size(sf::Vector2f(80.0f, 80.0f)), focusColor(sf::Color(100, 100, 50)), lockColor(
-				sf::Color(50, 100, 230)), foundValueColor(sf::Color(0, 50, 0)), foundPairValueCellColor(sf::Color(0, 0, 50)), fontConsolas(fc), valueTextOffset(
-				sf::Vector2f(25, 7))
+        fontConsolas(fc)
 {
-	rect.setSize(sf::Vector2f(size));
-	defaultColor = sf::Color(50, 50, 50);
-	color = defaultColor;
-	rect.setFillColor(color);
+    //representation
+    index = 0;
+    calculateXY();
+    value = 0;
+    state = EMPTY;
+    clusterMember = {0, 0, 0};
+    vecPossibleValues = std::vector<int>
+    { 1, 2, 3, 4, 5, 6, 7, 8, 9 };   // all 9 values are possible
 
-	valueText.setFont(fontConsolas);
-	valueText.setCharacterSize(50);
-	valueText.setFillColor(sf::Color::Yellow);
+    // user interaction
+    focus = false;
 
-	setValue(value);
-	setDrawPosition(sf::Vector2f(10, 10));
+    // graphic
+    aStateColor =
+    { sf::Color(30, 30, 30), // EMPTY
+    sf::Color(80, 20, 20),   // ERROR
+    sf::Color(20, 40, 20),   // SOLVED
+    sf::Color(20, 120, 20),  // NAKED_SINGLE
+    sf::Color(20, 80, 20),   // HIDDEN_SINGLE
+    sf::Color(20, 20, 120),  // NAKED_PAIR
+    sf::Color(20, 20, 80),   // HIDDEEN_PAIR
+    sf::Color(20, 120, 120), // NAKED_TRIPPLE
+    sf::Color(20, 80, 80),   // HIDDEN_TRIPPLE
+    sf::Color(20, 80, 20),   // NAKED_QUAD
+    sf::Color(20, 80, 20)    // HIDDEN_QUAD
+            };
 
-	for (size_t i = 0; i < aPossibility.size(); i++)
-	{
-		if (i > 0)
-		{
-			aPossibility[i].drawPosition = sf::Vector2f(
-					drawPosition + sf::Vector2f(((i - 1) % 3) * size.x / 3 + size.x / 10, (i - 1) / 3 * size.y / 3 + size.y / 30));
-			aPossibility[i].possibleValueText.setPosition(aPossibility[i].drawPosition);
-			aPossibility[i].possibleValueText.setFont(fontConsolas);
-			aPossibility[i].possibleValueText.setCharacterSize(18);
-			aPossibility[i].possibleValueText.setFillColor(sf::Color(255, 255, 255));
+    cellSize = sf::Vector2f(80, 80);
+    cellDrawPosition = sf::Vector2f(0, 0);
+    cellColor = aStateColor[state];
+    focusColor = sf::Color(100, 100, 100);
 
-			aPossibility[i].possibleValue = i;
-			aPossibility[i].isPossible = true;
-			std::stringstream ss;
-			ss << std::fixed << aPossibility[i].possibleValue;
-			aPossibility[i].possibleValueText.setString(ss.str());
-		}
-		else
-		{
-			aPossibility[i].possibleValue = 0;
-			aPossibility[i].isPossible = false;
-		}
-	}
+    cellRect.setSize(sf::Vector2f(cellSize));
+    cellRect.setFillColor(cellColor);
+
+    valueTextOffset = sf::Vector2f(25, 7);
+    valueText.setFont(fontConsolas);
+    valueText.setCharacterSize(50);
+    valueText.setFillColor(sf::Color::Yellow);
+    valueText.setString("0");
+
+    setDrawPosition(sf::Vector2f(0, 0));
+}
+
+// representation
+// ----------------------------------------------------------------------------
+void Cell::setIndex(int index)
+{
+    this->index = index;
+    calculateXY();
+    clusterMember[0] = index / 9;   // horizontal cluster number
+    clusterMember[1] = index % 9;   // vertical cluster number
+    int offsetA = position.x / 3;
+    int offsetB = position.y / 3;
+    clusterMember[2] = offsetA + offsetB * 3;
+}
+
+int Cell::getIndex() const
+{
+    return index;
+}
+
+std::array<int, 3> Cell::getClusterNumbers()
+{
+    return clusterMember;
+}
+
+void Cell::calculateXY()
+{
+    position.x = index % 9;
+    position.y = index / 9;
+}
+
+bool Cell::setState(CellState state)
+{
+    if (value > 0)
+    {
+        this->state = state;
+        return true;
+    }
+    else
+        return false;
+}
+
+CellState Cell::getState() const
+{
+    return state;
 }
 
 void Cell::setValue(int value)
 {
-	this->value = value;
+    if (focus)
+    {
+        std::stringstream ss;
+        this->value = value;
 
-	if (value > 0)
-	{
-		std::stringstream ss;
-		ss << std::fixed << value;
-		valueText.setString(ss.str());
-	}
-	else
-	{
-		valueText.setString(" ");
-	}
+        if (value > 0)
+        {
+            state = SOLVED;
 
-	foundValue = 0;
+            ss << std::fixed << value;
+            valueText.setString(ss.str());
+        }
+        else
+        {
+            state = EMPTY;
+            valueText.setString(" ");
+        }
+        cellRect.setFillColor(aStateColor[state]);
+    }
 }
 
 int Cell::getValue() const
 {
-	return value;
+    return value;
 }
 
-void Cell::setPosition(sf::Vector2i position)
-{
-	this->position = position;
-}
-
-sf::Vector2i Cell::getPosition() const
-{
-	return position;
-}
-
-void Cell::setPossibleValues(std::vector<int> vecPValues, bool state)
-{
-	for (auto pValue : vecPValues)
-		aPossibility[pValue].isPossible = state;
-}
-
-std::vector<int> Cell::getPossibleValues() const
-{
-	std::vector<int> vecPValues;
-
-	for (auto p : aPossibility)
-		if (p.isPossible)
-			vecPValues.push_back(p.possibleValue);
-
-	return vecPValues;
-}
-
-void Cell::setFoundValue(int v)
-{
-	foundValue = v;
-	setColor(foundValueColor);
-}
-
-int Cell::getFoundValue() const
-{
-	return foundValue;
-}
-
-void Cell::setFoundPair()
-{
-	foundPair = true;
-	setColor(foundPairValueCellColor);
-}
-
-void Cell::initCellToDefault()
-{
-	defaultColor = sf::Color(50, 50, 50);
-	color = defaultColor;
-	rect.setFillColor(color);
-	foundPair = false;
-	foundValue = 0;
-	for (auto p : aPossibility)
-	{
-		p.isPossible = true;
-	}
-	aPossibility[0].isPossible = false;
-	aPossibility[0].possibleValue = 0;
-}
-
-void Cell::setColor(sf::Color c)
-{
-	defaultColor = c;
-	color = defaultColor;
-	rect.setFillColor(color);
-}
-
-void Cell::toggleLock()
-{
-	lock = !lock;
-
-	if (lock)
-		color = lockColor;
-	else
-		color = defaultColor;
-
-	rect.setFillColor(color);
-}
-
-void Cell::setDrawPosition(sf::Vector2f position)
-{
-	this->drawPosition = position;
-	rect.setPosition(position);
-	valueText.setPosition(position + valueTextOffset);
-
-	for (size_t i = 0; i < aPossibility.size(); i++)
-	{
-		if (i > 0)
-		{
-			aPossibility[i].drawPosition = sf::Vector2f(
-					drawPosition + sf::Vector2f(((i - 1) % 3) * size.x / 3 + size.x / 10, (i - 1) / 3 * size.y / 3 + size.y / 30));
-			std::stringstream ss;
-			ss << std::fixed << i;
-			aPossibility[i].possibleValueText.setPosition(aPossibility[i].drawPosition);
-		}
-	}
-}
+// user interaction
+// ----------------------------------------------------------------------------
 
 bool Cell::mouseAction(sf::Vector2i mousePos, bool buttonPressed, bool buttonReleased)
 {
-	if (!(mousePos.x > drawPosition.x && mousePos.x < drawPosition.x + size.x && mousePos.y > drawPosition.y && mousePos.y < drawPosition.y + size.y))
-		focus = false;
-	else
-		focus = true;
+    if (!(mousePos.x > cellDrawPosition.x && mousePos.x < cellDrawPosition.x + cellSize.x && mousePos.y > cellDrawPosition.y
+            && mousePos.y < cellDrawPosition.y + cellSize.y))
+    {
+        focus = false;
+        cellRect.setFillColor(aStateColor[state]);
+        return false;
+    }
+    else
+    {
+        focus = true;
+        cellRect.setFillColor(focusColor);
+        return true;
+    }
+}
 
-	if (focus)
-	{
-		color = focusColor;
-		rect.setFillColor(color);
-		if (aPossibility[0].possibleValue > 0)
-		{
-			value = aPossibility[0].possibleValue;
-			aPossibility[0].possibleValue = 0;
-		}
-		return true;
-	}
-	else
-	{
-		if (!lock)
-			color = defaultColor;
-		else
-			color = lockColor;
+// graphic
+// ----------------------------------------------------------------------------
+void Cell::setDrawPosition(sf::Vector2f position)
+{
+    this->cellDrawPosition = position;
+    cellRect.setPosition(position);
+    valueText.setPosition(position + valueTextOffset);
 
-		rect.setFillColor(color);
-		return false;
-	}
+    //this are the 9 possible values, shown as little text in the cell
+    for (size_t i = 0; i < aDrawPossibleValue.size(); i++)
+    {
+        aDrawPossibleValue[i].drawPosition = sf::Vector2f(
+                cellDrawPosition + sf::Vector2f(i % 3 * cellSize.x / 3 + cellSize.x / 10, i / 3 * cellSize.y / 3 + cellSize.y / 30));
+        aDrawPossibleValue[i].valueText.setFont(fontConsolas);
+        aDrawPossibleValue[i].valueText.setCharacterSize(18);
+        aDrawPossibleValue[i].valueText.setFillColor(sf::Color(255, 255, 255));
+        aDrawPossibleValue[i].valueText.setPosition(aDrawPossibleValue[i].drawPosition);
+
+        std::stringstream ss;
+        ss << std::fixed << i + 1;
+        aDrawPossibleValue[i].valueText.setString(ss.str());
+
+    }
+}
+
+void Cell::setCellColor()
+{
+    if (focus)
+        cellRect.setFillColor(focusColor);
+    else
+        cellRect.setFillColor(aStateColor[state]);
 }
 
 void Cell::draw(sf::RenderTarget &target) const
 {
-	target.draw(rect);
-	target.draw(valueText);
+    target.draw(cellRect);
 
-	for (auto p : aPossibility)
-	{
-		if (p.isPossible)
-			target.draw(p.possibleValueText);
-	}
-}
+    if (state == SOLVED || state == ERROR)
+    {
+        target.draw(valueText);
+    }
+    else
+    {
+        for (auto p : vecPossibleValues)
+        {
+            target.draw(aDrawPossibleValue[p - 1].valueText);
+        }
+    }
 
-std::string Cell::getText() const
-{
-	return valueText.getString();
 }
 

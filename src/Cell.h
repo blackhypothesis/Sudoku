@@ -1,9 +1,13 @@
 #pragma once
 
 #include <string>
+#include <array>
+#include <vector>
 
 #include <sstream>
 #include <SFML/Graphics.hpp>
+
+#include "State.h"
 
 
 class Cell
@@ -12,59 +16,82 @@ public:
 	Cell(sf::Font&);
 
 private:
-	int value;
-	int foundValue;
-	bool foundPair;
-	sf::Vector2i position;
+    // cell representation
+    // ----------------------------------------------------------------------------
+    int index;
+    sf::Vector2i position;    // this is the x, y position, calculated from the index
+    int value;
+    CellState state;
 
-	struct Possibility
-	{
-		sf::Vector2f drawPosition;
-		int possibleValue;
-		bool isPossible;
-		sf::Text possibleValueText;
-	};
+    // Cluster Member
+    /* 0-> horizontal, 1-> vertical, 2-> region
+     * region cluster are 3 x 3 clusters in the sudoku
+     *   +-----+
+     *   |0|1|2|
+     *   +-+-+-+
+     *   |3|4|5|
+     *   +-+-+-+
+     *   |6|7|8|
+     *   +-+-+-+
+     */
+    std::array<int, 3> clusterMember;
 
-	std::array<Possibility, 10> aPossibility;
+    std::vector<int> vecPossibleValues;
 
-	bool focus;
-	bool lock;
 
-	sf::Vector2f drawPosition;
-	const sf::Vector2f size;
+    // user interaction: mouse, keyboard
+    // ----------------------------------------------------------------------------
 
-	sf::RectangleShape rect;
-    sf::Text valueText;
-	sf::Color defaultColor;
-	const sf::Color focusColor;
-	const sf::Color lockColor;
-	const sf::Color foundValueColor;
-	const sf::Color foundPairValueCellColor;
-	sf::Color color;
+    bool focus;
+
+
+	// graphic
+	// ----------------------------------------------------------------------------
     const sf::Font fontConsolas;
-    const sf::Vector2f valueTextOffset;
+	std::array<sf::Color, 11> aStateColor;
+
+    sf::Vector2f cellSize;
+    sf::Vector2f cellDrawPosition;
+    sf::RectangleShape cellRect;
+
+    sf::Text valueText;
+    sf::Vector2f valueTextOffset;
+    sf::Color cellColor;
+    sf::Color valueColor;
+    sf::Color focusColor;
+
+    struct DrawPossibleValue
+    {
+        sf::Vector2f drawPosition;
+        sf::Text valueText;
+        sf::Color valueColor;
+    };
+
+    std::array<DrawPossibleValue, 9> aDrawPossibleValue;
+
+
+
 
 public:
-	void setValue(int);
-	int getValue() const;
+    // cell representation
+    // ----------------------------------------------------------------------------
+    void setIndex(int);
+    int getIndex() const;
+    std::array<int, 3> getClusterNumbers();
+    void calculateXY();
+    bool setState(CellState);
+    CellState getState() const;
+    void setValue(int);
+    int getValue() const;
 
-	void setPosition(sf::Vector2i);
-	sf::Vector2i getPosition() const;
-
-	void setPossibleValues(std::vector<int>, bool);
-	std::vector<int> getPossibleValues() const;
-	void setFoundValue(int);
-	int getFoundValue() const;
-	void setFoundPair();
-
-	void initCellToDefault();
-	void setColor(sf::Color);
+    // user interaction: mouse, keyboard
+    // ----------------------------------------------------------------------------
+    bool mouseAction(sf::Vector2i, bool, bool);
 
 
-	void toggleLock();
+    // graphic
+	// ----------------------------------------------------------------------------
 	void setDrawPosition(sf::Vector2f);
-	bool mouseAction(sf::Vector2i, bool, bool);
-	void draw(sf::RenderTarget&) const;
-
-	std::string getText() const;
+	void setCellColor();
+    void draw(sf::RenderTarget&) const;
 };
