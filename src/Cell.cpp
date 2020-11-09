@@ -65,31 +65,10 @@ int Cell::getIndex() const
     return index;
 }
 
-std::array<int, 3> Cell::getClusterNumbers()
-{
-    return clusterMember;
-}
-
 void Cell::calculateXY()
 {
     position.x = index % 9;
     position.y = index / 9;
-}
-
-bool Cell::setState(CellState state)
-{
-    if (value > 0)
-    {
-        this->state = state;
-        return true;
-    }
-    else
-        return false;
-}
-
-CellState Cell::getState() const
-{
-    return state;
 }
 
 void Cell::setValue(int value)
@@ -118,6 +97,37 @@ void Cell::setValue(int value)
 int Cell::getValue() const
 {
     return value;
+}
+
+bool Cell::setState(CellState state)
+{
+    if (value > 0)
+    {
+        this->state = state;
+        return true;
+    }
+    else
+        return false;
+}
+
+CellState Cell::getState() const
+{
+    return state;
+}
+
+std::array<int, 3> Cell::getClusterNumbers()
+{
+    return clusterMember;
+}
+
+void Cell::setPossibleValues(std::vector<int> vecPossibleValues)
+{
+    this->vecPossibleValues = vecPossibleValues;
+}
+
+std::vector<int> Cell::getPossibleValues() const
+{
+    return vecPossibleValues;
 }
 
 // user interaction
@@ -177,15 +187,17 @@ void Cell::draw(sf::RenderTarget &target) const
 {
     target.draw(cellRect);
 
+    // draw value
     if (state == SOLVED || state == ERROR)
     {
         target.draw(valueText);
     }
+    // draw possible values
     else
     {
-        for (auto p : vecPossibleValues)
+        for (auto pv : vecPossibleValues)
         {
-            target.draw(aDrawPossibleValue[p - 1].valueText);
+            target.draw(aDrawPossibleValue[pv - 1].valueText);
         }
     }
 

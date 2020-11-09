@@ -46,7 +46,7 @@ sf::Vector2i Board::calculateXY(int index)
     return sf::Vector2i(index % 9, index / 9);
 }
 
-void Board::checkIntegrity()
+void Board::checkCellValueIntegrity()
 {
     // check if within a cluster (horizontal, vertical, region), a value exists more than once.
     // if this is the case, there is an ERROR.
@@ -78,6 +78,8 @@ void Board::checkIntegrity()
 
             for (size_t clusterType = 0; clusterType < aClusterValueCount.size(); clusterType++)
             {
+                // check, if the number of the occurence of a value within a cluster is greater than 1. In this case,
+                // there is an ERROR.
                 if (aClusterValueCount[clusterType][cellClusterNumber[clusterType]][cell->getValue() - 1] > 1)
                 {
                     cell->setState(ERROR);
@@ -91,6 +93,16 @@ void Board::checkIntegrity()
             }
         }
     }
+}
+
+void Board::cleanupPossibleValues()
+{
+
+}
+
+void Board::searchNakedSingles()
+{
+
 }
 
 // user interaction (mouse, keyboard)
@@ -114,7 +126,7 @@ void Board::setCellValue(int value)
     for (size_t i = 0; i < board.size(); i++)
         board[i]->setValue(value);
 
-    checkIntegrity();
+    checkCellValueIntegrity();
 }
 
 // graphic

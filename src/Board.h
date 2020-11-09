@@ -28,19 +28,21 @@ private:
 
     // graphic
     // ----------------------------------------------------------------------------
-    sf::Vector2f offset;                                  // offset to drawing window origin
-    std::vector<sf::RectangleShape> vecRegionSeparator;   // used to highlight the 9 regions / squares
+    sf::Vector2f offset;                                    // offset to drawing window origin
+    std::vector<sf::RectangleShape> vecRegionSeparator;     // used to highlight the 9 regions / squares
     sf::Color regionSeparatorColor;
     sf::Vector2f cellSize;
     sf::Vector2f cellDistance;
-    FontConsolas fontConsolas;                            // font used to display numbers
+    FontConsolas fontConsolas;                              // font used to display numbers
 
 
 public:
     //board representation
     // ----------------------------------------------------------------------------
     sf::Vector2i calculateXY(int);
-    void checkIntegrity();                                 // checks, if 2 or more cells within a cluster have the same value
+    void checkCellValueIntegrity();                         // checks, if 2 or more cells within a cluster have the same value
+    void cleanupPossibleValues();                           //
+    void searchNakedSingles();
 
 
     // user interaction

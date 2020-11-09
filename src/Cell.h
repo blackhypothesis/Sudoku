@@ -77,12 +77,14 @@ public:
     // ----------------------------------------------------------------------------
     void setIndex(int);
     int getIndex() const;
-    std::array<int, 3> getClusterNumbers();
     void calculateXY();
-    bool setState(CellState);
-    CellState getState() const;
     void setValue(int);
     int getValue() const;
+    bool setState(CellState);
+    CellState getState() const;
+    std::array<int, 3> getClusterNumbers();
+    void setPossibleValues(std::vector<int>);
+    std::vector<int> getPossibleValues() const;
 
     // user interaction: mouse, keyboard
     // ----------------------------------------------------------------------------
