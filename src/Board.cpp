@@ -293,6 +293,45 @@ void Board::calculatePairValue()
 						std::cout << v << " ";
 					}
 					std::cout << std::endl;
+
+
+					// delete all possible values in the cells, which are in the same cluster as the cells with the value pairs.
+					// compair with the first cell (the second is in the same cluster
+					Cell c = vecTwoPossibleValueCells[0];
+
+					for (size_t x = 0; x < board[x].size(); x++)
+					{
+						for (size_t y = 0; y < board[y].size(); y++)
+						{
+							bool isCellInCluster = false;
+
+							// horizontal
+							if (clusterType == 0 && y == c.getPosition().y)
+								isCellInCluster = true;
+							// vertical
+							if (clusterType == 1 && x == c.getPosition().x)
+								isCellInCluster = true;
+							// square
+							if (clusterType == 2 && getSquareClusterNumber(x, y) == getSquareClusterNumber(c.getPosition().x, c.getPosition().y))
+								isCellInCluster = true;
+
+							if (isCellInCluster)
+							{
+								std::vector<int> vecPossibleValues;
+								for (size_t i = 0; i < board[x][y]->getPossibleValues().size(); i++)
+								{
+									for (size_t j = 0; j < c.getPossibleValues().size(); j++)
+									{
+
+										if (std::find(board[x][y]->getPossibleValues().begin(), board[x][y]->getPossibleValues().end(), c.getPossibleValues()[j]) != board[x][y]->getPossibleValues().end())
+										{
+
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}
