@@ -1,3 +1,7 @@
+/*
+ * Sudoku solver
+ */
+
 #include <cstdlib>
 #include <array>
 #include <SFML/Graphics.hpp>
