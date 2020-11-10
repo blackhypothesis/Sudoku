@@ -40,6 +40,7 @@ public:
     //board representation
     // ----------------------------------------------------------------------------
     sf::Vector2i calculateXY(int);
+    void setCellsToDefault();                               //
     void checkCellValueIntegrity();                         // checks, if 2 or more cells within a cluster have the same value
     void cleanupPossibleValues();                           //
     void searchNakedSingles();

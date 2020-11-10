@@ -85,6 +85,7 @@ public:
     std::array<int, 3> getClusterNumbers();
     void setPossibleValues(std::vector<int>);
     std::vector<int> getPossibleValues() const;
+    void removePossibleValues(std::vector<int>);
 
     // user interaction: mouse, keyboard
     // ----------------------------------------------------------------------------

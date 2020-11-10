@@ -46,6 +46,14 @@ sf::Vector2i Board::calculateXY(int index)
     return sf::Vector2i(index % 9, index / 9);
 }
 
+void Board::setCellsToDefault()
+{
+    // first set all possible values
+    for (auto &cell : board)
+        if (cell->getState() != SOLVED && cell->getState() != ERROR)
+            cell->setState(EMPTY);
+}
+
 void Board::checkCellValueIntegrity()
 {
     // check if within a cluster (horizontal, vertical, region), a value exists more than once.
@@ -97,12 +105,45 @@ void Board::checkCellValueIntegrity()
 
 void Board::cleanupPossibleValues()
 {
+    for (auto &cellFirst : board)
+    {
+        // if cell is SOLVED, then remove all possible values
+        if (cellFirst->getState() == SOLVED)
+        {
+            cellFirst->removePossibleValues(std::vector<int>
+            { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
 
+            std::array<int, 3> cellFirstClusterNumber = cellFirst->getClusterNumbers();
+
+            for (auto &cellSecond : board)
+            {
+                if (cellSecond->getState() == EMPTY)
+                {
+                    std::array<int, 3> cellSecondClusterNumber = cellSecond->getClusterNumbers();
+
+                    bool clusterMatch = false;
+
+                    // check if 1st cell is in the same cluster number as the 2nd cell, for each clustertype
+                    for (size_t i = 0; i < cellFirstClusterNumber.size(); i++)
+                        if (cellFirstClusterNumber[i] == cellSecondClusterNumber[i])
+                            clusterMatch = true;
+
+                    if (clusterMatch)
+                        cellSecond->removePossibleValues(std::vector<int>
+                        { cellFirst->getValue() });
+                }
+            }
+        }
+    }
 }
 
 void Board::searchNakedSingles()
 {
-
+    for (auto &cell : board)
+    {
+        if (cell->getPossibleValues().size() == 1)
+            cell->setState(NAKED_SINGLE);
+    }
 }
 
 // user interaction (mouse, keyboard)
@@ -111,7 +152,6 @@ bool Board::mouseAction(sf::Vector2i mousePos, bool buttonPressed, bool buttonRe
 {
     for (size_t i = 0; i < board.size(); i++)
     {
-
         if (board[i]->mouseAction(mousePos, buttonPressed, buttonReleased))
         {
             std::cout << "cell " << i << " mouse action" << std::endl;
@@ -126,7 +166,10 @@ void Board::setCellValue(int value)
     for (size_t i = 0; i < board.size(); i++)
         board[i]->setValue(value);
 
+    setCellsToDefault();
     checkCellValueIntegrity();
+    cleanupPossibleValues();
+    searchNakedSingles();
 }
 
 // graphic

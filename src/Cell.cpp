@@ -8,7 +8,8 @@ Cell::Cell(sf::Font &fc) :
     calculateXY();
     value = 0;
     state = EMPTY;
-    clusterMember = {0, 0, 0};
+    clusterMember =
+    { 0, 0, 0 };
     vecPossibleValues = std::vector<int>
     { 1, 2, 3, 4, 5, 6, 7, 8, 9 };   // all 9 values are possible
 
@@ -81,6 +82,8 @@ void Cell::setValue(int value)
         if (value > 0)
         {
             state = SOLVED;
+            vecPossibleValues = std::vector<int>
+            { };
 
             ss << std::fixed << value;
             valueText.setString(ss.str());
@@ -88,6 +91,8 @@ void Cell::setValue(int value)
         else
         {
             state = EMPTY;
+            vecPossibleValues = std::vector<int>
+            { 1, 2, 3, 4, 5, 6, 7, 8, 9 };   // all 9 values are possible
             valueText.setString(" ");
         }
         cellRect.setFillColor(aStateColor[state]);
@@ -101,9 +106,19 @@ int Cell::getValue() const
 
 bool Cell::setState(CellState state)
 {
-    if (value > 0)
+    this->state = state;
+    cellRect.setFillColor(aStateColor[state]);
+
+    if (state == SOLVED)
     {
-        this->state = state;
+        vecPossibleValues = std::vector<int>
+        { };
+        return true;
+    }
+    else if (state == EMPTY)
+    {
+        vecPossibleValues = std::vector<int>
+        { 1, 2, 3, 4, 5, 6, 7, 8, 9 };   // all 9 values are possible
         return true;
     }
     else
@@ -122,7 +137,22 @@ std::array<int, 3> Cell::getClusterNumbers()
 
 void Cell::setPossibleValues(std::vector<int> vecPossibleValues)
 {
-    this->vecPossibleValues = vecPossibleValues;
+    if (state != SOLVED || state != ERROR)
+        this->vecPossibleValues = vecPossibleValues;
+}
+
+void Cell::removePossibleValues(std::vector<int> vecRemoveValues)
+{
+    for (auto i = vecPossibleValues.begin(); i < vecPossibleValues.end(); i++)
+    {
+        for (auto r : vecRemoveValues)
+        {
+            if (*i == r)
+            {
+                vecPossibleValues.erase(i);
+            }
+        }
+    }
 }
 
 std::vector<int> Cell::getPossibleValues() const
