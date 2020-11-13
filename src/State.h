@@ -3,7 +3,8 @@
 enum CellState
 {
     EMPTY,
-    ERROR,
+    E_MULTIPLEVALUES,
+    E_NOPOSSIBLEVALUE,
     SOLVED,
     NAKED_SINGLE,
     HIDDEN_SINGLE,

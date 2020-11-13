@@ -19,9 +19,10 @@ Cell::Cell(sf::Font &fc) :
     // graphic
     aStateColor =
     { sf::Color(30, 30, 30), // EMPTY
-    sf::Color(80, 20, 20),   // ERROR
+    sf::Color(80, 20, 20),   // E_MULTIPLEVALUES
+    sf::Color(80, 30, 30),   // E_NOPOSSIBLEVALUE
     sf::Color(20, 40, 20),   // SOLVED
-    sf::Color(20, 120, 20),  // NAKED_SINGLE
+    sf::Color(20, 60, 20),  // NAKED_SINGLE
     sf::Color(20, 80, 20),   // HIDDEN_SINGLE
     sf::Color(20, 20, 120),  // NAKED_PAIR
     sf::Color(20, 20, 80),   // HIDDEEN_PAIR
@@ -31,10 +32,14 @@ Cell::Cell(sf::Font &fc) :
     sf::Color(20, 80, 20)    // HIDDEN_QUAD
             };
 
-    cellSize = sf::Vector2f(80, 80);
-    cellDrawPosition = sf::Vector2f(0, 0);
     cellColor = aStateColor[state];
     focusColor = sf::Color(100, 100, 100);
+    valueColor = sf::Color(sf::Color::Yellow);
+    possibleValueColor = sf::Color(200, 200, 200);
+    possibleValueApprovedColor = sf::Color(20, 200, 20);
+
+    cellSize = sf::Vector2f(80, 80);
+    cellDrawPosition = sf::Vector2f(0, 0);
 
     cellRect.setSize(sf::Vector2f(cellSize));
     cellRect.setFillColor(cellColor);
@@ -42,10 +47,10 @@ Cell::Cell(sf::Font &fc) :
     valueTextOffset = sf::Vector2f(25, 7);
     valueText.setFont(fontConsolas);
     valueText.setCharacterSize(50);
-    valueText.setFillColor(sf::Color::Yellow);
+    valueText.setFillColor(valueColor);
     valueText.setString("0");
 
-    setDrawPosition(sf::Vector2f(0, 0));
+    setDPossibleValuesrawPosition(sf::Vector2f(0, 0));
 }
 
 // representation
@@ -74,7 +79,7 @@ void Cell::calculateXY()
 
 void Cell::setValue(int value)
 {
-    if (focus)
+    //if (focus)
     {
         std::stringstream ss;
         this->value = value;
@@ -117,8 +122,13 @@ bool Cell::setState(CellState state)
     }
     else if (state == EMPTY)
     {
-        vecPossibleValues = std::vector<int>
-        { 1, 2, 3, 4, 5, 6, 7, 8, 9 };   // all 9 values are possible
+        // all 9 values are possible
+        setPossibleValues(std::vector<int>
+        { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+        // but no approved possible values
+        setPossibleValuesApproved(std::vector<int>
+        { });
+
         return true;
     }
     else
@@ -135,10 +145,21 @@ std::array<int, 3> Cell::getClusterNumbers()
     return clusterMember;
 }
 
+std::vector<int> Cell::getPossibleValues() const
+{
+    return vecPossibleValues;
+}
+
 void Cell::setPossibleValues(std::vector<int> vecPossibleValues)
 {
-    if (state != SOLVED || state != ERROR)
+    if (state != SOLVED || state != E_MULTIPLEVALUES)
         this->vecPossibleValues = vecPossibleValues;
+
+    for (auto pv : vecPossibleValues)
+    {
+        aDrawPossibleValue[pv - 1].valueColor = possibleValueColor;
+        aDrawPossibleValue[pv - 1].valueText.setFillColor(possibleValueColor);
+    }
 }
 
 void Cell::removePossibleValues(std::vector<int> vecRemoveValues)
@@ -155,9 +176,21 @@ void Cell::removePossibleValues(std::vector<int> vecRemoveValues)
     }
 }
 
-std::vector<int> Cell::getPossibleValues() const
+std::vector<int> Cell::getPossibleValuesApproved() const
 {
-    return vecPossibleValues;
+    return vecPossibleValuesApproved;
+}
+
+void Cell::setPossibleValuesApproved(std::vector<int> vecPossibleValuesApproved)
+{
+    if (state != SOLVED || state != E_MULTIPLEVALUES)
+        this->vecPossibleValuesApproved = vecPossibleValuesApproved;
+
+    for (auto pv : vecPossibleValuesApproved)
+    {
+        aDrawPossibleValue[pv - 1].valueColor = possibleValueColor;
+        aDrawPossibleValue[pv - 1].valueText.setFillColor(possibleValueApprovedColor);
+    }
 }
 
 // user interaction
@@ -180,9 +213,14 @@ bool Cell::mouseAction(sf::Vector2i mousePos, bool buttonPressed, bool buttonRel
     }
 }
 
+bool Cell::getFocus() const
+{
+    return focus;
+}
+
 // graphic
 // ----------------------------------------------------------------------------
-void Cell::setDrawPosition(sf::Vector2f position)
+void Cell::setDPossibleValuesrawPosition(sf::Vector2f position)
 {
     this->cellDrawPosition = position;
     cellRect.setPosition(position);
@@ -195,13 +233,13 @@ void Cell::setDrawPosition(sf::Vector2f position)
                 cellDrawPosition + sf::Vector2f(i % 3 * cellSize.x / 3 + cellSize.x / 10, i / 3 * cellSize.y / 3 + cellSize.y / 30));
         aDrawPossibleValue[i].valueText.setFont(fontConsolas);
         aDrawPossibleValue[i].valueText.setCharacterSize(18);
-        aDrawPossibleValue[i].valueText.setFillColor(sf::Color(255, 255, 255));
+        aDrawPossibleValue[i].valueColor = possibleValueColor;
+        aDrawPossibleValue[i].valueText.setFillColor(possibleValueColor);
         aDrawPossibleValue[i].valueText.setPosition(aDrawPossibleValue[i].drawPosition);
 
         std::stringstream ss;
         ss << std::fixed << i + 1;
         aDrawPossibleValue[i].valueText.setString(ss.str());
-
     }
 }
 
@@ -218,7 +256,7 @@ void Cell::draw(sf::RenderTarget &target) const
     target.draw(cellRect);
 
     // draw value
-    if (state == SOLVED || state == ERROR)
+    if (state == SOLVED || state == E_MULTIPLEVALUES)
     {
         target.draw(valueText);
     }
@@ -230,6 +268,5 @@ void Cell::draw(sf::RenderTarget &target) const
             target.draw(aDrawPossibleValue[pv - 1].valueText);
         }
     }
-
 }
 

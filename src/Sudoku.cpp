@@ -19,7 +19,7 @@ int main()
     sf::Vector2i mousePos;
     bool buttonPressed;
     bool buttonReleased;
-    int cellValue = -1;
+    std::string actionParam;
 
     sf::RenderWindow window;
     window.create(sf::VideoMode(windowX, windowY), "Sudoku");
@@ -28,6 +28,9 @@ int main()
     FontConsolas fontConsolas;
 
     Board board;
+    board.loadGame(std::array<int, 81>
+    { 4, 1, 0, 0, 7, 0, 0, 0, 5, 0, 8, 0, 0, 0, 6, 0, 9, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 7, 4, 0, 1, 6, 0, 0, 5, 3, 0, 0, 0, 0, 0, 1, 2, 0, 0, 4, 3, 0, 8,
+            7, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 9, 0, 8, 0, 0, 0, 7, 0, 7, 0, 0, 0, 6, 0, 0, 2, 8});
 
     while (window.isOpen())
     {
@@ -66,32 +69,35 @@ int main()
             }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num0))
-            cellValue = 0;
+            actionParam = "0";
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
-            cellValue = 1;
+            actionParam = "1";
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
-            cellValue = 2;
+            actionParam = "2";
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num3))
-            cellValue = 3;
+            actionParam = "3";
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num4))
-            cellValue = 4;
+            actionParam = "4";
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num5))
-            cellValue = 5;
+            actionParam = "5";
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num6))
-            cellValue = 6;
+            actionParam = "6";
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num7))
-            cellValue = 7;
+            actionParam = "7";
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num8))
-            cellValue = 8;
+            actionParam = "8";
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num9))
-            cellValue = 9;
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::L))
-            cellValue = 10; // toggle Lock of field
+            actionParam = "9";
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))        // perform all actions
+            actionParam = "A";
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::N))        // perform next action (step)
+            actionParam = "S";
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))        // reset actions
+            actionParam = "R";
 
         board.mouseAction(mousePos, buttonPressed, buttonReleased);
-        if (cellValue >= 0)
-            board.setCellValue(cellValue);
-        cellValue = -1;
+        board.performAction(actionParam);
+        actionParam = " ";
 
         window.clear();
 

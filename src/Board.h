@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <chrono>
+#include <thread>
 #include <array>
 #include <vector>
 #include <cmath>
@@ -40,16 +42,19 @@ public:
     //board representation
     // ----------------------------------------------------------------------------
     sf::Vector2i calculateXY(int);
+    void loadGame(std::array<int, 81>);
     void setCellsToDefault();                               //
-    void checkCellValueIntegrity();                         // checks, if 2 or more cells within a cluster have the same value
     void cleanupPossibleValues();                           //
+    void checkCellValueIntegrity();                         // checks, if 2 or more cells within a cluster have the same value
     void searchNakedSingles();
 
 
     // user interaction
     // ----------------------------------------------------------------------------
     bool mouseAction(sf::Vector2i, bool, bool);
-    void setCellValue(int);
+    bool mouseActionEnabled;
+    int currentAction;
+    void performAction(std::string);
 
 
     // graphic
