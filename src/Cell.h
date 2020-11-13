@@ -34,7 +34,7 @@ private:
      *   |6|7|8|
      *   +-+-+-+
      */
-    std::array<int, 3> clusterMember;
+    std::array<unsigned int, 3> clusterMember;
 
     std::vector<int> vecPossibleValues;
     std::vector<int> vecPossibleValuesApproved;
@@ -84,7 +84,7 @@ public:
     int getValue() const;
     bool setState(CellState);
     CellState getState() const;
-    std::array<int, 3> getClusterNumbers();
+    std::array<unsigned int, 3> getClusterNumbers();
 
     void setPossibleValuesApproved(std::vector<int>);
     std::vector<int> getPossibleValuesApproved() const;
@@ -92,6 +92,7 @@ public:
     void setPossibleValues(std::vector<int>);
     std::vector<int> getPossibleValues() const;
     void removePossibleValues(std::vector<int>);
+    bool containsPossibleValues(std::vector<int>);
 
     // user interaction: mouse, keyboard
     // ----------------------------------------------------------------------------

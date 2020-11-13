@@ -82,13 +82,13 @@ void Board::cleanupPossibleValues()
             cellFirst->removePossibleValues(std::vector<int>
             { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
 
-            std::array<int, 3> cellFirstClusterNumber = cellFirst->getClusterNumbers();
+            std::array<unsigned int, 3> cellFirstClusterNumber = cellFirst->getClusterNumbers();
 
             for (auto &cellSecond : board)
             {
                 if (cellSecond->getState() == EMPTY)
                 {
-                    std::array<int, 3> cellSecondClusterNumber = cellSecond->getClusterNumbers();
+                    std::array<unsigned int, 3> cellSecondClusterNumber = cellSecond->getClusterNumbers();
 
                     bool clusterMatch = false;
 
@@ -118,7 +118,7 @@ void Board::checkCellValueIntegrity()
 
     for (auto &cell : board)
     {
-        std::array<int, 3> cellClusterNumber = cell->getClusterNumbers();
+        std::array<unsigned int, 3> cellClusterNumber = cell->getClusterNumbers();
         CellState state = cell->getState();
         if (state == SOLVED || state == E_MULTIPLEVALUES)
         {
@@ -130,26 +130,18 @@ void Board::checkCellValueIntegrity()
 
     for (auto &cell : board)
     {
-        std::array<int, 3> cellClusterNumber = cell->getClusterNumbers();
+        std::array<unsigned int, 3> cellClusterNumber = cell->getClusterNumbers();
         CellState state = cell->getState();
         if (state == SOLVED || state == E_MULTIPLEVALUES)
         {
-            bool error = false;
-
             for (size_t clusterType = 0; clusterType < aClusterValueCount.size(); clusterType++)
             {
-                // check, if the number of the occurence of a value within a cluster is greater than 1. In this case,
+                // check, if the number the occurence of a value within a cluster is greater than 1. In this case,
                 // there is an ERROR.
                 if (aClusterValueCount[clusterType][cellClusterNumber[clusterType]][cell->getValue() - 1] > 1)
                 {
                     cell->setState(E_MULTIPLEVALUES);
-                    error = true;
                 }
-            }
-
-            if (error == false)
-            {
-                cell->setState(SOLVED);
             }
         }
     }
@@ -164,8 +156,9 @@ void Board::checkCellValueIntegrity()
     }
 }
 
-void Board::searchNakedSingles()
+void Board::searchSingles()
 {
+    // search for NAKED_SINGLE
     for (auto &cell : board)
     {
         if (cell->getPossibleValues().size() == 1)
@@ -173,6 +166,64 @@ void Board::searchNakedSingles()
             cell->setState(NAKED_SINGLE);
             cell->setPossibleValuesApproved(std::vector<int>
             { cell->getPossibleValues()[0] });
+        }
+    }
+
+    // search for HIDDEN_SINGLE
+    std::array<std::array<std::array<unsigned int, 9>, 9>, 3> aClusterPossibleValueCount =
+    { };
+
+    // for each cell, check in which cluster it is and cumulate all possible values of the cell
+    // within each cluster
+    for (auto &cell : board)
+    {
+        std::array<unsigned int, 3> cellClusterNumber = cell->getClusterNumbers();
+        CellState state = cell->getState();
+        if (state != SOLVED && state != E_MULTIPLEVALUES)
+        {
+            // count (by increment) how many times a possible value occures in each cluster
+            std::vector<int> vecPossibleValues = cell->getPossibleValues();
+
+            for (auto pv : vecPossibleValues)
+            {
+                for (size_t clusterType = 0; clusterType < aClusterPossibleValueCount.size(); clusterType++)
+                {
+                    aClusterPossibleValueCount[clusterType][cellClusterNumber[clusterType]][pv - 1]++;
+                }
+            }
+        }
+    }
+
+    // go through each cluster and check, if a possible value occures onle 1 time
+    for (unsigned int clusterType = 0; clusterType < aClusterPossibleValueCount.size(); clusterType++)
+    {
+        for (unsigned int clusterNumber = 0; clusterNumber < aClusterPossibleValueCount[0].size(); clusterNumber++)
+        {
+            for (unsigned int possibleValue = 0; possibleValue < aClusterPossibleValueCount[0][0].size(); possibleValue++)
+            {
+                // if the possible value occures only 1 time, then this is a HIDDEN_SINGLE
+                if (aClusterPossibleValueCount[clusterType][clusterNumber][possibleValue] == 1)
+                {
+                    // check each cell ...
+                    for (auto &cell : board)
+                    {
+                        std::array<unsigned int, 3> cellClusterNumber = cell->getClusterNumbers();
+                        CellState state = cell->getState();
+                        if (state != SOLVED && state != E_MULTIPLEVALUES)
+                        {
+                            int pv = possibleValue + 1;
+                            // if the cell is in the same clustertype and clusternumber AND if the cell contains the possible value, which occures
+                            // only one time in the cluster
+                            if (clusterNumber == cellClusterNumber[clusterType] && cell->containsPossibleValues(std::vector<int>{ pv }))
+                            {
+                                cell->setState(HIDDEN_SINGLE);
+                                cell->setPossibleValuesApproved(std::vector<int>
+                                { pv });
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -185,10 +236,10 @@ bool Board::mouseAction(sf::Vector2i mousePos, bool buttonPressed, bool buttonRe
     {
         if (cell->mouseAction(mousePos, buttonPressed, buttonReleased) && buttonPressed)
         {
-            if (cell->getState() == NAKED_SINGLE)
+            if (cell->getState() == NAKED_SINGLE || cell->getState() == HIDDEN_SINGLE)
             {
                 mouseActionEnabled = false;
-                performAction(std::to_string(cell->getPossibleValues()[0]));
+                performAction(std::to_string(cell->getPossibleValuesApproved()[0]));
             }
         }
     }
@@ -227,11 +278,11 @@ void Board::performAction(std::string action)
     }
 
     //perform all actions
-    if (action == "A")
+    //if (action == "A")
     {
         cleanupPossibleValues();
         checkCellValueIntegrity();
-        searchNakedSingles();
+        searchSingles();
     }
 
     // perform actions step by step
@@ -246,7 +297,7 @@ void Board::performAction(std::string action)
             checkCellValueIntegrity();
             break;
         case 2:
-            searchNakedSingles();
+            searchSingles();
             break;
         }
         currentAction++;

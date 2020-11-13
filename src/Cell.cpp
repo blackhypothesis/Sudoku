@@ -21,9 +21,9 @@ Cell::Cell(sf::Font &fc) :
     { sf::Color(30, 30, 30), // EMPTY
     sf::Color(80, 20, 20),   // E_MULTIPLEVALUES
     sf::Color(80, 30, 30),   // E_NOPOSSIBLEVALUE
-    sf::Color(20, 40, 20),   // SOLVED
-    sf::Color(20, 60, 20),  // NAKED_SINGLE
-    sf::Color(20, 80, 20),   // HIDDEN_SINGLE
+    sf::Color(45, 103, 113),     // SOLVED
+    sf::Color(45, 92, 67),   // NAKED_SINGLE
+    sf::Color(21,63,35),   // HIDDEN_SINGLE
     sf::Color(20, 20, 120),  // NAKED_PAIR
     sf::Color(20, 20, 80),   // HIDDEEN_PAIR
     sf::Color(20, 120, 120), // NAKED_TRIPPLE
@@ -140,7 +140,7 @@ CellState Cell::getState() const
     return state;
 }
 
-std::array<int, 3> Cell::getClusterNumbers()
+std::array<unsigned int, 3> Cell::getClusterNumbers()
 {
     return clusterMember;
 }
@@ -174,6 +174,19 @@ void Cell::removePossibleValues(std::vector<int> vecRemoveValues)
             }
         }
     }
+}
+
+bool Cell::containsPossibleValues(std::vector<int> testPossibleValues)
+{
+    bool valuesMatch = true;
+
+    for (auto tpv : testPossibleValues)
+    {
+        if ((std::find(vecPossibleValues.begin(), vecPossibleValues.end(), tpv) != vecPossibleValues.end()) == false)
+            valuesMatch = false;
+    }
+
+    return valuesMatch;
 }
 
 std::vector<int> Cell::getPossibleValuesApproved() const

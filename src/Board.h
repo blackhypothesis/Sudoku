@@ -46,7 +46,7 @@ public:
     void setCellsToDefault();                               //
     void cleanupPossibleValues();                           //
     void checkCellValueIntegrity();                         // checks, if 2 or more cells within a cluster have the same value
-    void searchNakedSingles();
+    void searchSingles();
 
 
     // user interaction
