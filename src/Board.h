@@ -48,6 +48,7 @@ public:
     void checkCellValueIntegrity();                         // checks, if 2 or more cells within a cluster have the same value
     bool searchForSingles();                                // search for NAKED_SINGLE and HIDDEN_SINGLE
     bool searchForNakedPairs();                             // search for NAKED_PAIR
+    bool searchForHiddenPairs();
     void removePossibleValuesDiscarded();                   // remove possible values
 
 
@@ -62,5 +63,12 @@ public:
     // graphic
     // ----------------------------------------------------------------------------
     void draw(sf::RenderTarget& target) const;
+
+private:
+    //board representation
+    // ----------------------------------------------------------------------------
+
+    // helper functions
+    std::array<std::array<std::array<unsigned int, 9>, 9>, 3> countOccurenceOfPossibleValueInEachCluster();
 
 };

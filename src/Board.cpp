@@ -169,39 +169,32 @@ bool Board::searchForSingles()
     {
         if (cell->getPossibleValues().size() == 1)
         {
+            std::array<unsigned int, 3> cellClusterType = cell->getClusterNumbers();
             cell->setState(NAKED_SINGLE);
             cell->setPossibleValuesApproved(std::vector<int>
             { cell->getPossibleValues()[0] });
             foundSingle = true;
-        }
-    }
 
-    // search for HIDDEN_SINGLE
-    std::array<std::array<std::array<unsigned int, 9>, 9>, 3> aClusterPossibleValueCount =
-    { };
-
-    // for each cell, check in which cluster it is and cumulate all possible values of the cell
-    // within each cluster
-    for (auto &cell : board)
-    {
-        std::array<unsigned int, 3> cellClusterNumber = cell->getClusterNumbers();
-        CellState state = cell->getState();
-        if (state != SOLVED && state != E_MULTIPLEVALUES)
-        {
-            // count (by increment) how many times a possible value occures in each cluster
-            std::vector<int> vecPossibleValues = cell->getPossibleValues();
-
-            for (auto pv : vecPossibleValues)
+            // mark the values in the cells which are in the same cluster as the NAKED_SINGLE as discarded
+            for (unsigned int clusterType = 0; clusterType < cellClusterType.size(); clusterType++)
             {
-                for (size_t clusterType = 0; clusterType < aClusterPossibleValueCount.size(); clusterType++)
+                for (auto &cell2 : board)
                 {
-                    aClusterPossibleValueCount[clusterType][cellClusterNumber[clusterType]][pv - 1]++;
+                    if (cell2->getPossibleValuesApproved().size() != 1 && cellClusterType[clusterType] == cell2->getClusterNumbers()[clusterType]
+                            && (cell->getState() != SOLVED || cell->getState() != E_MULTIPLEVALUES))
+                    {
+                        cell2->setPossibleValuesDiscarded(std::vector<int>
+                        { cell->getPossibleValues()[0] });
+                    }
                 }
             }
         }
     }
 
-    // go through each cluster and check, if a possible value occures onle 1 time
+    // search for HIDDEN_SINGLE
+    std::array<std::array<std::array<unsigned int, 9>, 9>, 3> aClusterPossibleValueCount = countOccurenceOfPossibleValueInEachCluster();
+
+    // go through each cluster and check, if a possible value occures only 1 time
     for (unsigned int clusterType = 0; clusterType < aClusterPossibleValueCount.size(); clusterType++)
     {
         for (unsigned int clusterNumber = 0; clusterNumber < aClusterPossibleValueCount[0].size(); clusterNumber++)
@@ -235,7 +228,6 @@ bool Board::searchForSingles()
             }
         }
     }
-
     return foundSingle;
 }
 
@@ -298,6 +290,60 @@ bool Board::searchForNakedPairs()
     return foundPair;
 }
 
+bool Board::searchForHiddenPairs()
+{
+    bool foundPair = false;
+
+    std::array<std::array<std::array<unsigned int, 9>, 9>, 3> aClusterPossibleValueCount = countOccurenceOfPossibleValueInEachCluster();
+
+    // go through each cluster and check, if a possible value occures exactly 2 times
+    for (unsigned int clusterType = 0; clusterType < aClusterPossibleValueCount.size(); clusterType++)
+    {
+        for (unsigned int clusterNumber = 0; clusterNumber < aClusterPossibleValueCount[0].size(); clusterNumber++)
+        {
+            std::vector<std::vector<std::shared_ptr<Cell>>> vecHiddenPairCandidates;
+
+            // if exactly 2 cells with the same 2 possible values exists in a cluster, then it is a HIDDEN_PAIR
+            for (int v1 = 1; v1 < 10; v1++)
+            {
+                for (int v2 = v1; v2 < 10; v2++)
+                {
+                    if (v1 != v2)
+                    {
+                        std::vector<std::shared_ptr<Cell>> vecCellHiddenPairCandidates;
+
+                        for (auto &cell : board)
+                        {
+                            std::array<unsigned int, 3> cellClusterNumber = cell->getClusterNumbers();
+                            CellState state = cell->getState();
+
+                            if (state != SOLVED && state != E_MULTIPLEVALUES && clusterNumber == cellClusterNumber[clusterType]
+                                    && cell->containsPossibleValues(std::vector<int>
+                                    { v1, v2 }))
+                            {
+                                vecCellHiddenPairCandidates.push_back(cell);
+                                cell->setHiddenPossibleValues(std::vector<int>
+                                { v1, v2 });
+                            }
+                        }
+                        // if exactly 2 cells have the same 2 values -> found a HIDDEN_PAIR candidate
+                        if (vecCellHiddenPairCandidates.size() == 2)
+                            vecHiddenPairCandidates.push_back(vecCellHiddenPairCandidates);
+                    }
+                }
+            }
+            // if there is only one HIDDEN_PAIR candiate, then it is an approved HIDDEN_PAIR
+            if (vecHiddenPairCandidates.size() == 1)
+            {
+                vecHiddenPairCandidates[0][0]->setState(HIDDEN_PAIR);
+                vecHiddenPairCandidates[0][1]->setState(HIDDEN_PAIR);
+            }
+        }
+    }
+
+    return foundPair;
+}
+
 void Board::removePossibleValuesDiscarded()
 {
     for (auto &cell : board)
@@ -344,7 +390,7 @@ void Board::performAction(std::string action)
         value = -1;
     }
 
-    // set value of cell
+// set value of cell
     if (value != -1)
     {
         for (auto &cell : board)
@@ -355,7 +401,7 @@ void Board::performAction(std::string action)
         currentAction = 0;
     }
 
-    //perform all actions
+//perform all actions
     if (action == "A")
     {
         cleanupPossibleValues();
@@ -363,9 +409,10 @@ void Board::performAction(std::string action)
         searchForSingles();
         searchForNakedPairs();
         removePossibleValuesDiscarded();
+        searchForHiddenPairs();
     }
 
-    // perform actions step by step
+// perform actions step by step
     if (action == "S")
     {
         switch (currentAction)
@@ -380,9 +427,18 @@ void Board::performAction(std::string action)
             searchForSingles();
             break;
         case 3:
-            searchForNakedPairs();
+            removePossibleValuesDiscarded();
             break;
         case 4:
+            searchForNakedPairs();
+            break;
+        case 5:
+            removePossibleValuesDiscarded();
+            break;
+        case 6:
+            searchForHiddenPairs();
+            break;
+        case 7:
             removePossibleValuesDiscarded();
             break;
         }
@@ -398,7 +454,7 @@ void Board::performAction(std::string action)
         sleep = true;
     }
 
-    // sleep, otherwise the actions will be executed too fast
+// sleep, otherwise the actions will be executed too fast
     if (sleep)
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
@@ -414,4 +470,33 @@ void Board::draw(sf::RenderTarget &target) const
 
     for (auto &vs : vecRegionSeparator)
         target.draw(vs);
+}
+
+std::array<std::array<std::array<unsigned int, 9>, 9>, 3> Board::countOccurenceOfPossibleValueInEachCluster()
+{
+    std::array<std::array<std::array<unsigned int, 9>, 9>, 3> aClusterPossibleValueCount =
+    { };
+
+// for each cell, check in which cluster it is and cumulate all possible values of the cell
+// within each cluster
+    for (auto &cell : board)
+    {
+        std::array<unsigned int, 3> cellClusterNumber = cell->getClusterNumbers();
+        CellState state = cell->getState();
+        if (state != SOLVED && state != E_MULTIPLEVALUES)
+        {
+            // count (by increment) how many times a possible value occures in each cluster
+            std::vector<int> vecPossibleValues = cell->getPossibleValues();
+
+            for (auto pv : vecPossibleValues)
+            {
+                for (size_t clusterType = 0; clusterType < aClusterPossibleValueCount.size(); clusterType++)
+                {
+                    aClusterPossibleValueCount[clusterType][cellClusterNumber[clusterType]][pv - 1]++;
+                }
+            }
+        }
+    }
+
+    return aClusterPossibleValueCount;
 }

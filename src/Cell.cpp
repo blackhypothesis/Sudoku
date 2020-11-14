@@ -25,7 +25,7 @@ Cell::Cell(sf::Font &fc) :
     sf::Color(45, 92, 67),   // NAKED_SINGLE
     sf::Color(21, 63, 35),     // HIDDEN_SINGLE
     sf::Color(20, 20, 120),  // NAKED_PAIR
-    sf::Color(20, 20, 80),   // HIDDEEN_PAIR
+    sf::Color(150, 20, 20),   // HIDDEN_PAIR
     sf::Color(20, 120, 120), // NAKED_TRIPPLE
     sf::Color(20, 80, 80),   // HIDDEN_TRIPPLE
     sf::Color(20, 80, 20),   // NAKED_QUAD
@@ -35,8 +35,8 @@ Cell::Cell(sf::Font &fc) :
     cellColor = aStateColor[state];
     focusColor = sf::Color(100, 100, 100);
     valueColor = sf::Color(sf::Color::Yellow);
-    possibleValueColor = sf::Color(200, 200, 200);
-    possibleValueApprovedColor = sf::Color(20, 200, 20);
+    possibleValueColor = sf::Color(100, 100, 100);
+    possibleValueApprovedColor = sf::Color(20, 255, 130);
     possibleValueDiscardedColor = sf::Color(240, 20, 20);
 
 
@@ -228,6 +228,16 @@ void Cell::setPossibleValuesDiscarded(std::vector<int> vecPossibleValuesDiscarde
 void Cell::removePossibeValuesDiscarded()
 {
     removePossibleValues(vecPossibleValuesDiscarded);
+}
+
+void Cell::setHiddenPossibleValues(std::vector<int> vecHiddenPossibleValues)
+{
+    this->vecHiddenPossibleValues = vecHiddenPossibleValues;
+}
+
+std::vector<int> Cell::getHiddenPossibleValues() const
+{
+    return vecHiddenPossibleValues;
 }
 
 // user interaction
