@@ -21,9 +21,9 @@ Cell::Cell(sf::Font &fc) :
     { sf::Color(30, 30, 30), // EMPTY
     sf::Color(80, 20, 20),   // E_MULTIPLEVALUES
     sf::Color(80, 30, 30),   // E_NOPOSSIBLEVALUE
-    sf::Color(45, 103, 113),     // SOLVED
+    sf::Color(45, 103, 113), // SOLVED
     sf::Color(45, 92, 67),   // NAKED_SINGLE
-    sf::Color(21,63,35),   // HIDDEN_SINGLE
+    sf::Color(21, 63, 35),     // HIDDEN_SINGLE
     sf::Color(20, 20, 120),  // NAKED_PAIR
     sf::Color(20, 20, 80),   // HIDDEEN_PAIR
     sf::Color(20, 120, 120), // NAKED_TRIPPLE

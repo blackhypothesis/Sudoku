@@ -5,7 +5,7 @@ Board::Board()
     // graphic
     // ----------------------------------------------------------------------------
     offset = sf::Vector2f(20, 20);
-    regionSeparatorColor = sf::Color(100, 150, 150);
+    regionSeparatorColor = sf::Color(27, 84, 148);
     cellSize = sf::Vector2f(80.0f, 80.0f);
     cellDistance = sf::Vector2f(7.0f, 7.0f);
 
@@ -156,8 +156,10 @@ void Board::checkCellValueIntegrity()
     }
 }
 
-void Board::searchSingles()
+bool Board::searchForSingles()
 {
+    bool foundSingle = false;
+
     // search for NAKED_SINGLE
     for (auto &cell : board)
     {
@@ -166,6 +168,7 @@ void Board::searchSingles()
             cell->setState(NAKED_SINGLE);
             cell->setPossibleValuesApproved(std::vector<int>
             { cell->getPossibleValues()[0] });
+            foundSingle = true;
         }
     }
 
@@ -214,11 +217,13 @@ void Board::searchSingles()
                             int pv = possibleValue + 1;
                             // if the cell is in the same clustertype and clusternumber AND if the cell contains the possible value, which occures
                             // only one time in the cluster
-                            if (clusterNumber == cellClusterNumber[clusterType] && cell->containsPossibleValues(std::vector<int>{ pv }))
+                            if (clusterNumber == cellClusterNumber[clusterType] && cell->containsPossibleValues(std::vector<int>
+                            { pv }))
                             {
                                 cell->setState(HIDDEN_SINGLE);
                                 cell->setPossibleValuesApproved(std::vector<int>
                                 { pv });
+                                foundSingle = true;
                             }
                         }
                     }
@@ -226,6 +231,68 @@ void Board::searchSingles()
             }
         }
     }
+
+    return foundSingle;
+}
+
+bool Board::searchForNakedPairs()
+{
+    bool foundPair = false;
+
+    std::vector<std::shared_ptr<Cell>> vecSuitableCells;
+
+    // search for NAKED_PAIR
+
+    // search all cells, which have the exact number of possible values
+    for (auto cell : board)
+    {
+        if (cell->getPossibleValues().size() == 2)
+        {
+            vecSuitableCells.push_back(cell);
+        }
+    }
+
+    // check for this cells, if they are in the same cluster and have the same possible values
+    for (auto &cellFirst : vecSuitableCells)
+    {
+        for (auto &cellSecond : vecSuitableCells)
+        {
+            if (cellFirst->getIndex() != cellSecond->getIndex())
+            {
+                std::array<unsigned int, 3> cellFirstClusterType = cellFirst->getClusterNumbers();
+                std::array<unsigned int, 3> cellSecondClusterType = cellSecond->getClusterNumbers();
+
+                for (size_t clusterTypeNumber = 0; clusterTypeNumber < cellFirstClusterType.size(); clusterTypeNumber++)
+                {
+                    // are the 2 cell in the same cluster type and the same clusternumber AND have the same possible values?
+                    // then a NAKED_PAIR is found
+                    if (cellFirstClusterType[clusterTypeNumber] == cellSecondClusterType[clusterTypeNumber]
+                            && cellFirst->getPossibleValues() == cellSecond->getPossibleValues())
+                    {
+                        cellFirst->setState(NAKED_PAIR);
+                        cellFirst->setPossibleValuesApproved(cellFirst->getPossibleValues());
+                        cellSecond->setState(NAKED_PAIR);
+                        cellSecond->setPossibleValuesApproved(cellSecond->getPossibleValues());
+
+
+                        // remove the values which are in the NAKED_PAIR from the other cells within the same cluster
+                        for (auto &cell : board)
+                        {
+                            if (cell->getClusterNumbers()[clusterTypeNumber] == cellFirstClusterType[clusterTypeNumber] && cell->getState() != NAKED_PAIR
+                                    && (cell->getState() != SOLVED || cell->getState() != E_MULTIPLEVALUES))
+                            {
+                                cell->removePossibleValues(cellFirst->getPossibleValues());
+                            }
+                        }
+
+                        foundPair = true;
+                    }
+                }
+            }
+        }
+    }
+
+    return foundPair;
 }
 
 // user interaction (mouse, keyboard)
@@ -282,7 +349,8 @@ void Board::performAction(std::string action)
     {
         cleanupPossibleValues();
         checkCellValueIntegrity();
-        searchSingles();
+        searchForSingles();
+        searchForNakedPairs();
     }
 
     // perform actions step by step
@@ -297,8 +365,10 @@ void Board::performAction(std::string action)
             checkCellValueIntegrity();
             break;
         case 2:
-            searchSingles();
+            searchForSingles();
             break;
+        case 3:
+            searchForNakedPairs();
         }
         currentAction++;
         sleep = true;

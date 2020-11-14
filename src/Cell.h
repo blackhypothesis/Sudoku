@@ -9,11 +9,10 @@
 
 #include "State.h"
 
-
 class Cell
 {
 public:
-	Cell(sf::Font&);
+    Cell(sf::Font&);
 
 private:
     // cell representation
@@ -39,19 +38,15 @@ private:
     std::vector<int> vecPossibleValues;
     std::vector<int> vecPossibleValuesApproved;
 
-
-
-
     // user interaction: mouse, keyboard
     // ----------------------------------------------------------------------------
 
     bool focus;
 
-
-	// graphic
-	// ----------------------------------------------------------------------------
+    // graphic
+    // ----------------------------------------------------------------------------
     const sf::Font fontConsolas;
-	std::array<sf::Color, 12> aStateColor;
+    std::array<sf::Color, 12> aStateColor;
     sf::Color cellColor;
     sf::Color focusColor;
     sf::Color valueColor;
@@ -99,10 +94,9 @@ public:
     bool mouseAction(sf::Vector2i, bool, bool);
     bool getFocus() const;
 
-
     // graphic
-	// ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
     void setDPossibleValuesrawPosition(sf::Vector2f);
-	void setCellColor();
+    void setCellColor();
     void draw(sf::RenderTarget&) const;
 };

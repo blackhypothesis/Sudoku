@@ -22,7 +22,7 @@ public:
 private:
     //board representation
     // ----------------------------------------------------------------------------
-    std::array<std::unique_ptr<Cell>, 81> board;
+    std::array<std::shared_ptr<Cell>, 81> board;
 
 
     // user interaction (mouse, keyboard)
@@ -46,7 +46,9 @@ public:
     void setCellsToDefault();                               //
     void cleanupPossibleValues();                           //
     void checkCellValueIntegrity();                         // checks, if 2 or more cells within a cluster have the same value
-    void searchSingles();
+    bool searchForSingles();                                // search for NAKED_SINGLE and HIDDEN_SINGLE
+    bool searchForNakedPairs();                             // search for NAKED_PAIR
+    void removeNakedPairPossibleValues();                   // remove possible values
 
 
     // user interaction
