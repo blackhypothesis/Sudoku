@@ -48,7 +48,7 @@ public:
     void checkCellValueIntegrity();                         // checks, if 2 or more cells within a cluster have the same value
     bool searchForSingles();                                // search for NAKED_SINGLE and HIDDEN_SINGLE
     bool searchForNakedPairs();                             // search for NAKED_PAIR
-    void removeNakedPairPossibleValues();                   // remove possible values
+    void removePossibleValuesDiscarded();                   // remove possible values
 
 
     // user interaction

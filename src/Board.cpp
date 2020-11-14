@@ -156,6 +156,10 @@ void Board::checkCellValueIntegrity()
     }
 }
 
+/*
+ *     search
+ */
+
 bool Board::searchForSingles()
 {
     bool foundSingle = false;
@@ -274,14 +278,13 @@ bool Board::searchForNakedPairs()
                         cellSecond->setState(NAKED_PAIR);
                         cellSecond->setPossibleValuesApproved(cellSecond->getPossibleValues());
 
-
-                        // remove the values which are in the NAKED_PAIR from the other cells within the same cluster
+                        // mark the values as discarded which are in the NAKED_PAIR from the other cells within the same cluster
                         for (auto &cell : board)
                         {
                             if (cell->getClusterNumbers()[clusterTypeNumber] == cellFirstClusterType[clusterTypeNumber] && cell->getState() != NAKED_PAIR
                                     && (cell->getState() != SOLVED || cell->getState() != E_MULTIPLEVALUES))
                             {
-                                cell->removePossibleValues(cellFirst->getPossibleValues());
+                                cell->setPossibleValuesDiscarded(cellFirst->getPossibleValues());
                             }
                         }
 
@@ -293,6 +296,14 @@ bool Board::searchForNakedPairs()
     }
 
     return foundPair;
+}
+
+void Board::removePossibleValuesDiscarded()
+{
+    for (auto &cell : board)
+    {
+        cell->removePossibeValuesDiscarded();
+    }
 }
 
 // user interaction (mouse, keyboard)
@@ -345,12 +356,13 @@ void Board::performAction(std::string action)
     }
 
     //perform all actions
-    //if (action == "A")
+    if (action == "A")
     {
         cleanupPossibleValues();
         checkCellValueIntegrity();
         searchForSingles();
         searchForNakedPairs();
+        removePossibleValuesDiscarded();
     }
 
     // perform actions step by step
@@ -369,7 +381,12 @@ void Board::performAction(std::string action)
             break;
         case 3:
             searchForNakedPairs();
+            break;
+        case 4:
+            removePossibleValuesDiscarded();
+            break;
         }
+
         currentAction++;
         sleep = true;
     }

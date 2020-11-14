@@ -37,6 +37,7 @@ private:
 
     std::vector<int> vecPossibleValues;
     std::vector<int> vecPossibleValuesApproved;
+    std::vector<int> vecPossibleValuesDiscarded;
 
     // user interaction: mouse, keyboard
     // ----------------------------------------------------------------------------
@@ -52,6 +53,7 @@ private:
     sf::Color valueColor;
     sf::Color possibleValueColor;
     sf::Color possibleValueApprovedColor;
+    sf::Color possibleValueDiscardedColor;
 
     sf::Vector2f cellSize;
     sf::Vector2f cellDrawPosition;
@@ -81,13 +83,17 @@ public:
     CellState getState() const;
     std::array<unsigned int, 3> getClusterNumbers();
 
-    void setPossibleValuesApproved(std::vector<int>);
-    std::vector<int> getPossibleValuesApproved() const;
-
     void setPossibleValues(std::vector<int>);
     std::vector<int> getPossibleValues() const;
     void removePossibleValues(std::vector<int>);
     bool containsPossibleValues(std::vector<int>);
+
+    void setPossibleValuesApproved(std::vector<int>);
+    std::vector<int> getPossibleValuesApproved() const;
+
+    void setPossibleValuesDiscarded(std::vector<int>);
+    std::vector<int> getPossibleValuesDiscarded() const;
+    void removePossibeValuesDiscarded();
 
     // user interaction: mouse, keyboard
     // ----------------------------------------------------------------------------

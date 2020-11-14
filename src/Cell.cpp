@@ -37,6 +37,8 @@ Cell::Cell(sf::Font &fc) :
     valueColor = sf::Color(sf::Color::Yellow);
     possibleValueColor = sf::Color(200, 200, 200);
     possibleValueApprovedColor = sf::Color(20, 200, 20);
+    possibleValueDiscardedColor = sf::Color(240, 20, 20);
+
 
     cellSize = sf::Vector2f(80, 80);
     cellDrawPosition = sf::Vector2f(0, 0);
@@ -204,6 +206,28 @@ void Cell::setPossibleValuesApproved(std::vector<int> vecPossibleValuesApproved)
         aDrawPossibleValue[pv - 1].valueColor = possibleValueColor;
         aDrawPossibleValue[pv - 1].valueText.setFillColor(possibleValueApprovedColor);
     }
+}
+
+std::vector<int> Cell::getPossibleValuesDiscarded() const
+{
+    return vecPossibleValuesDiscarded;
+}
+
+void Cell::setPossibleValuesDiscarded(std::vector<int> vecPossibleValuesDiscarded)
+{
+    if (state != SOLVED || state != E_MULTIPLEVALUES)
+        this->vecPossibleValuesDiscarded = vecPossibleValuesDiscarded;
+
+    for (auto pv : vecPossibleValuesDiscarded)
+    {
+        aDrawPossibleValue[pv - 1].valueColor = possibleValueColor;
+        aDrawPossibleValue[pv - 1].valueText.setFillColor(possibleValueDiscardedColor);
+    }
+}
+
+void Cell::removePossibeValuesDiscarded()
+{
+    removePossibleValues(vecPossibleValuesDiscarded);
 }
 
 // user interaction
