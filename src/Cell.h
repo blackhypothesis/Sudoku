@@ -56,6 +56,7 @@ private:
     sf::Color possibleValueColor;
     sf::Color possibleValueApprovedColor;
     sf::Color possibleValueDiscardedColor;
+    sf::Color possibleValueHiddenColor;
 
     sf::Vector2f cellSize;
     sf::Vector2f cellDrawPosition;

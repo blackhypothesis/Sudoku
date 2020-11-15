@@ -38,6 +38,7 @@ Cell::Cell(sf::Font &fc) :
     possibleValueColor = sf::Color(100, 100, 100);
     possibleValueApprovedColor = sf::Color(20, 255, 130);
     possibleValueDiscardedColor = sf::Color(240, 20, 20);
+    possibleValueHiddenColor = sf::Color(100, 100, 250);
 
     cellSize = sf::Vector2f(80, 80);
     cellDrawPosition = sf::Vector2f(0, 0);
@@ -210,7 +211,7 @@ void Cell::setPossibleValuesApproved(std::vector<int> vecPossibleValuesApproved)
 
     for (auto pv : vecPossibleValuesApproved)
     {
-        aDrawPossibleValue[pv - 1].valueColor = possibleValueColor;
+        aDrawPossibleValue[pv - 1].valueColor = possibleValueApprovedColor;
         aDrawPossibleValue[pv - 1].valueText.setFillColor(possibleValueApprovedColor);
     }
 }
@@ -227,7 +228,7 @@ void Cell::setPossibleValuesDiscarded(std::vector<int> vecPossibleValuesDiscarde
 
     for (auto pv : vecPossibleValuesDiscarded)
     {
-        aDrawPossibleValue[pv - 1].valueColor = possibleValueColor;
+        aDrawPossibleValue[pv - 1].valueColor = possibleValueDiscardedColor;
         aDrawPossibleValue[pv - 1].valueText.setFillColor(possibleValueDiscardedColor);
     }
 }
@@ -247,7 +248,7 @@ void Cell::addPossibleValuesDiscarded(std::vector<int> vecPV)
 
     for (auto pv : vecPossibleValuesDiscarded)
     {
-        aDrawPossibleValue[pv - 1].valueColor = possibleValueColor;
+        aDrawPossibleValue[pv - 1].valueColor = possibleValueDiscardedColor;
         aDrawPossibleValue[pv - 1].valueText.setFillColor(possibleValueDiscardedColor);
     }
 }
@@ -257,9 +258,15 @@ void Cell::removePossibeValuesDiscarded()
     removePossibleValues(vecPossibleValuesDiscarded);
 }
 
-void Cell::setPossibleValuesHidden(std::vector<int> vecHiddenPossibleValues)
+void Cell::setPossibleValuesHidden(std::vector<int> vecPossibleValuesHidden)
 {
-    this->vecPossibleValuesHidden = vecHiddenPossibleValues;
+    this->vecPossibleValuesHidden = vecPossibleValuesHidden;
+
+    for (auto pv : vecPossibleValuesHidden)
+    {
+        aDrawPossibleValue[pv - 1].valueColor = possibleValueHiddenColor;
+        aDrawPossibleValue[pv - 1].valueText.setFillColor(possibleValueHiddenColor);
+    }
 }
 
 std::vector<int> Cell::getPossibleValuesHidden() const

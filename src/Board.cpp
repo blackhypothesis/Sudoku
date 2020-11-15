@@ -258,7 +258,7 @@ bool Board::searchForNakedPairs()
     // search for NAKED_PAIR
 
     // search all cells, which have the exact number of possible values
-    for (auto cell : board)
+    for (auto &cell : board)
     {
         if (cell->getPossibleValues().size() == 2)
         {
@@ -318,8 +318,6 @@ bool Board::searchForHiddenPairs()
     {
         for (unsigned int clusterNumber = 0; clusterNumber < aClusterPossibleValueCount[0].size(); clusterNumber++)
         {
-            std::vector<std::vector<std::shared_ptr<Cell>>> vecHiddenPairCandidates;
-
             // if exactly 2 cells with the same 2 possible values exists in a cluster, then it is a HIDDEN_PAIR
             for (int v1 = 1; v1 < 10; v1++)
             {
@@ -329,6 +327,7 @@ bool Board::searchForHiddenPairs()
                     {
                         std::vector<std::shared_ptr<Cell>> vecCellHiddenPairCandidates;
 
+                        // search for all cells, which have the 2 possible values v1 and v2
                         for (auto &cell : board)
                         {
                             std::array<unsigned int, 3> cellClusterNumber = cell->getClusterNumbers();
@@ -338,21 +337,56 @@ bool Board::searchForHiddenPairs()
                             { v1, v2 }))
                             {
                                 vecCellHiddenPairCandidates.push_back(cell);
-                                cell->setPossibleValuesHidden(std::vector<int>
-                                { v1, v2 });
+                                //cell->setPossibleValuesHidden(std::vector<int>
+                                //{ v1, v2 });
                             }
                         }
                         // if exactly 2 cells have the same 2 values -> found a HIDDEN_PAIR candidate
                         if (vecCellHiddenPairCandidates.size() == 2)
-                            vecHiddenPairCandidates.push_back(vecCellHiddenPairCandidates);
+                        {
+                            // check if the 2 values are only in this 2 HIDDEN_PAIR candidate
+                            // check in all clusters, where this 2 candidates belong to
+                            bool isHiddenPair = true;
+
+                            for (auto &cellHiddenPairCandidate : vecCellHiddenPairCandidates)
+                            {
+                                std::array<unsigned int, 3> cellHiddenPairCandidateClusterNumber = cellHiddenPairCandidate->getClusterNumbers();
+
+                                for (unsigned int clusterType = 0; clusterType < aClusterPossibleValueCount.size(); clusterType++)
+                                {
+                                    for (auto &testCell : board)
+                                    {
+                                        std::array<unsigned int, 3> cellClusterNumber = testCell->getClusterNumbers();
+                                        CellState cellState = testCell->getState();
+                                        int cellIndex = testCell->getIndex();
+                                        bool containsV1 = testCell->containsPossibleValues(std::vector<int>
+                                        { v1, v2 });
+                                        bool containsV2 = testCell->containsPossibleValues(std::vector<int>
+                                        { v2 });
+
+                                        if (cellState == EMPTY && cellClusterNumber[clusterType] == cellHiddenPairCandidateClusterNumber[clusterType]
+                                                && cellIndex != vecCellHiddenPairCandidates[0]->getIndex()
+                                                && cellIndex != vecCellHiddenPairCandidates[1]->getIndex() && testCell->containsPossibleValues(std::vector<int>
+                                                { v1, v2 }))
+                                        {
+                                            isHiddenPair = false;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (isHiddenPair)
+                            {
+                                for (auto &cell : vecCellHiddenPairCandidates)
+                                {
+                                    cell->setState(HIDDEN_PAIR);
+                                    cell->setPossibleValuesApproved(std::vector<int>
+                                    { v1, v2 });
+                                }
+                            }
+                        }
                     }
                 }
-            }
-            // if there is only one HIDDEN_PAIR candiate, then it is an approved HIDDEN_PAIR
-            if (vecHiddenPairCandidates.size() == 1)
-            {
-                vecHiddenPairCandidates[0][0]->setState(HIDDEN_PAIR);
-                vecHiddenPairCandidates[0][1]->setState(HIDDEN_PAIR);
             }
         }
     }
