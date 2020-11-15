@@ -117,6 +117,12 @@ bool Cell::setState(CellState state)
     {
         vecPossibleValues = std::vector<int>
         { };
+        vecPossibleValuesApproved = std::vector<int>
+        { };
+        vecPossibleValuesDiscarded = std::vector<int>
+        { };
+        vecPossibleValuesHidden = std::vector<int>
+        { };
         return true;
     }
     else if (state == EMPTY)
@@ -124,9 +130,13 @@ bool Cell::setState(CellState state)
         // all 9 values are possible
         setPossibleValues(std::vector<int>
         { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
-        // but no approved possible values
-        setPossibleValuesApproved(std::vector<int>
-        { });
+        // but no approved discarded and hidden possible values
+        vecPossibleValuesApproved = std::vector<int>
+        { };
+        vecPossibleValuesDiscarded = std::vector<int>
+        { };
+        vecPossibleValuesHidden = std::vector<int>
+        { };
 
         return true;
     }
@@ -247,14 +257,14 @@ void Cell::removePossibeValuesDiscarded()
     removePossibleValues(vecPossibleValuesDiscarded);
 }
 
-void Cell::setHiddenPossibleValues(std::vector<int> vecHiddenPossibleValues)
+void Cell::setPossibleValuesHidden(std::vector<int> vecHiddenPossibleValues)
 {
-    this->vecHiddenPossibleValues = vecHiddenPossibleValues;
+    this->vecPossibleValuesHidden = vecHiddenPossibleValues;
 }
 
-std::vector<int> Cell::getHiddenPossibleValues() const
+std::vector<int> Cell::getPossibleValuesHidden() const
 {
-    return vecHiddenPossibleValues;
+    return vecPossibleValuesHidden;
 }
 
 // user interaction

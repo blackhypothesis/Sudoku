@@ -338,7 +338,7 @@ bool Board::searchForHiddenPairs()
                             { v1, v2 }))
                             {
                                 vecCellHiddenPairCandidates.push_back(cell);
-                                cell->setHiddenPossibleValues(std::vector<int>
+                                cell->setPossibleValuesHidden(std::vector<int>
                                 { v1, v2 });
                             }
                         }

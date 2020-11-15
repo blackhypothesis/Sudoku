@@ -39,7 +39,7 @@ private:
     std::vector<int> vecPossibleValues;
     std::vector<int> vecPossibleValuesApproved;
     std::vector<int> vecPossibleValuesDiscarded;
-    std::vector<int> vecHiddenPossibleValues;     // to temporary store possible values for hidden PAIR, TRIPPLE, QUAD
+    std::vector<int> vecPossibleValuesHidden;     // to temporary store possible values for hidden PAIR, TRIPPLE, QUAD
 
     // user interaction: mouse, keyboard
     // ----------------------------------------------------------------------------
@@ -98,8 +98,8 @@ public:
     void addPossibleValuesDiscarded(std::vector<int>);
     void removePossibeValuesDiscarded();
 
-    void setHiddenPossibleValues(std::vector<int>);
-    std::vector<int> getHiddenPossibleValues() const;
+    void setPossibleValuesHidden(std::vector<int>);
+    std::vector<int> getPossibleValuesHidden() const;
 
     // user interaction: mouse, keyboard
     // ----------------------------------------------------------------------------
