@@ -46,7 +46,8 @@ public:
     void setCellsToDefault();                               //
     void cleanupPossibleValues();                           //
     void checkCellValueIntegrity();                         // checks, if 2 or more cells within a cluster have the same value
-    bool searchForSingles();                                // search for NAKED_SINGLE and HIDDEN_SINGLE
+    bool searchForNakedSingles();                           // search for NAKED_SINGLE and HIDDEN_SINGLE
+    bool searchForHiddenSingles();                          // search for NAKED_SINGLE and HIDDEN_SINGLE
     bool searchForNakedPairs();                             // search for NAKED_PAIR
     bool searchForHiddenPairs();
     void removePossibleValuesDiscarded();                   // remove possible values

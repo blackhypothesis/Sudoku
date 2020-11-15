@@ -225,6 +225,26 @@ void Cell::setPossibleValuesDiscarded(std::vector<int> vecPossibleValuesDiscarde
     }
 }
 
+void Cell::addPossibleValuesDiscarded(std::vector<int> vecPV)
+{
+    if (state != SOLVED || state != E_MULTIPLEVALUES)
+    {
+        std::sort(vecPV.begin(), vecPV.end());
+
+        std::vector<int> vecTmp(10);
+        std::vector<int>::iterator it;
+        it = std::set_union(vecPossibleValuesDiscarded.begin(), vecPossibleValuesDiscarded.end(), vecPV.begin(), vecPV.end(), vecTmp.begin());
+        vecTmp.resize(it - vecTmp.begin());
+        vecPossibleValuesDiscarded = vecTmp;
+    }
+
+    for (auto pv : vecPossibleValuesDiscarded)
+    {
+        aDrawPossibleValue[pv - 1].valueColor = possibleValueColor;
+        aDrawPossibleValue[pv - 1].valueText.setFillColor(possibleValueDiscardedColor);
+    }
+}
+
 void Cell::removePossibeValuesDiscarded()
 {
     removePossibleValues(vecPossibleValuesDiscarded);

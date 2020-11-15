@@ -149,7 +149,7 @@ void Board::checkCellValueIntegrity()
     // check if there is a cell with no possible value
     for (auto &cell : board)
     {
-        if (cell->getPossibleValues().size() == 0 && cell->getState() != SOLVED && cell->getState() != E_MULTIPLEVALUES)
+        if (cell->getPossibleValues().size() == 0 && cell->getState() == EMPTY)
         {
             cell->setState(E_NOPOSSIBLEVALUE);
         }
@@ -160,7 +160,7 @@ void Board::checkCellValueIntegrity()
  *     search
  */
 
-bool Board::searchForSingles()
+bool Board::searchForNakedSingles()
 {
     bool foundSingle = false;
 
@@ -180,16 +180,21 @@ bool Board::searchForSingles()
             {
                 for (auto &cell2 : board)
                 {
-                    if (cell2->getPossibleValuesApproved().size() != 1 && cellClusterType[clusterType] == cell2->getClusterNumbers()[clusterType]
-                            && (cell->getState() != SOLVED || cell->getState() != E_MULTIPLEVALUES))
+                    if (cell2->getState() == EMPTY && cellClusterType[clusterType] == cell2->getClusterNumbers()[clusterType])
                     {
-                        cell2->setPossibleValuesDiscarded(std::vector<int>
-                        { cell->getPossibleValues()[0] });
+                        cell2->addPossibleValuesDiscarded(std::vector<int>
+                        { cell->getPossibleValuesApproved()[0] });
                     }
                 }
             }
         }
     }
+    return foundSingle;
+}
+
+bool Board::searchForHiddenSingles()
+{
+    bool foundSingle = false;
 
     // search for HIDDEN_SINGLE
     std::array<std::array<std::array<unsigned int, 9>, 9>, 3> aClusterPossibleValueCount = countOccurenceOfPossibleValueInEachCluster();
@@ -207,20 +212,33 @@ bool Board::searchForSingles()
                     // check each cell ...
                     for (auto &cell : board)
                     {
-                        std::array<unsigned int, 3> cellClusterNumber = cell->getClusterNumbers();
+                        std::array<unsigned int, 3> cellClusterType = cell->getClusterNumbers();
                         CellState state = cell->getState();
-                        if (state != SOLVED && state != E_MULTIPLEVALUES)
+                        if (state == EMPTY)
                         {
                             int pv = possibleValue + 1;
                             // if the cell is in the same clustertype and clusternumber AND if the cell contains the possible value, which occures
                             // only one time in the cluster
-                            if (clusterNumber == cellClusterNumber[clusterType] && cell->containsPossibleValues(std::vector<int>
+                            if (clusterNumber == cellClusterType[clusterType] && cell->containsPossibleValues(std::vector<int>
                             { pv }))
                             {
                                 cell->setState(HIDDEN_SINGLE);
                                 cell->setPossibleValuesApproved(std::vector<int>
                                 { pv });
                                 foundSingle = true;
+
+                                // mark the values in the cells which are in the same cluster as the HIDDEN_SINGLE as discarded
+                                for (unsigned int clusterType = 0; clusterType < cellClusterType.size(); clusterType++)
+                                {
+                                    for (auto &cell2 : board)
+                                    {
+                                        if (cell2->getState() == EMPTY && cellClusterType[clusterType] == cell2->getClusterNumbers()[clusterType])
+                                        {
+                                            cell2->addPossibleValuesDiscarded(std::vector<int>
+                                            { cell->getPossibleValuesApproved()[0] });
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -273,8 +291,7 @@ bool Board::searchForNakedPairs()
                         // mark the values as discarded which are in the NAKED_PAIR from the other cells within the same cluster
                         for (auto &cell : board)
                         {
-                            if (cell->getClusterNumbers()[clusterTypeNumber] == cellFirstClusterType[clusterTypeNumber] && cell->getState() != NAKED_PAIR
-                                    && (cell->getState() != SOLVED || cell->getState() != E_MULTIPLEVALUES))
+                            if (cell->getClusterNumbers()[clusterTypeNumber] == cellFirstClusterType[clusterTypeNumber] && cell->getState() == EMPTY)
                             {
                                 cell->setPossibleValuesDiscarded(cellFirst->getPossibleValues());
                             }
@@ -317,9 +334,8 @@ bool Board::searchForHiddenPairs()
                             std::array<unsigned int, 3> cellClusterNumber = cell->getClusterNumbers();
                             CellState state = cell->getState();
 
-                            if (state != SOLVED && state != E_MULTIPLEVALUES && clusterNumber == cellClusterNumber[clusterType]
-                                    && cell->containsPossibleValues(std::vector<int>
-                                    { v1, v2 }))
+                            if (state == EMPTY && clusterNumber == cellClusterNumber[clusterType] && cell->containsPossibleValues(std::vector<int>
+                            { v1, v2 }))
                             {
                                 vecCellHiddenPairCandidates.push_back(cell);
                                 cell->setHiddenPossibleValues(std::vector<int>
@@ -406,10 +422,10 @@ void Board::performAction(std::string action)
     {
         cleanupPossibleValues();
         checkCellValueIntegrity();
-        searchForSingles();
+        searchForNakedSingles();
         searchForNakedPairs();
         removePossibleValuesDiscarded();
-        searchForHiddenPairs();
+        // searchForHiddenPairs();
     }
 
 // perform actions step by step
@@ -424,24 +440,32 @@ void Board::performAction(std::string action)
             checkCellValueIntegrity();
             break;
         case 2:
-            searchForSingles();
+            searchForNakedSingles();
             break;
         case 3:
             removePossibleValuesDiscarded();
             break;
         case 4:
-            searchForNakedPairs();
+            searchForHiddenSingles();
             break;
         case 5:
             removePossibleValuesDiscarded();
             break;
         case 6:
-            searchForHiddenPairs();
+            searchForNakedPairs();
             break;
         case 7:
             removePossibleValuesDiscarded();
             break;
+        case 8:
+            searchForHiddenPairs();
+            break;
+        case 9:
+            removePossibleValuesDiscarded();
+            break;
         }
+
+        std::cout << currentAction << std::endl;
 
         currentAction++;
         sleep = true;

@@ -3,6 +3,7 @@
 #include <string>
 #include <array>
 #include <vector>
+#include <algorithm>
 
 #include <sstream>
 #include <SFML/Graphics.hpp>
@@ -94,6 +95,7 @@ public:
 
     void setPossibleValuesDiscarded(std::vector<int>);
     std::vector<int> getPossibleValuesDiscarded() const;
+    void addPossibleValuesDiscarded(std::vector<int>);
     void removePossibeValuesDiscarded();
 
     void setHiddenPossibleValues(std::vector<int>);
