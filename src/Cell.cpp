@@ -39,7 +39,6 @@ Cell::Cell(sf::Font &fc) :
     possibleValueApprovedColor = sf::Color(20, 255, 130);
     possibleValueDiscardedColor = sf::Color(240, 20, 20);
 
-
     cellSize = sf::Vector2f(80, 80);
     cellDrawPosition = sf::Vector2f(0, 0);
 
@@ -81,29 +80,27 @@ void Cell::calculateXY()
 
 void Cell::setValue(int value)
 {
-    //if (focus)
+
+    std::stringstream ss;
+    this->value = value;
+
+    if (value > 0)
     {
-        std::stringstream ss;
-        this->value = value;
+        state = SOLVED;
+        vecPossibleValues = std::vector<int>
+        { };
 
-        if (value > 0)
-        {
-            state = SOLVED;
-            vecPossibleValues = std::vector<int>
-            { };
-
-            ss << std::fixed << value;
-            valueText.setString(ss.str());
-        }
-        else
-        {
-            state = EMPTY;
-            vecPossibleValues = std::vector<int>
-            { 1, 2, 3, 4, 5, 6, 7, 8, 9 };   // all 9 values are possible
-            valueText.setString(" ");
-        }
-        cellRect.setFillColor(aStateColor[state]);
+        ss << std::fixed << value;
+        valueText.setString(ss.str());
     }
+    else
+    {
+        state = EMPTY;
+        vecPossibleValues = std::vector<int>
+        { 1, 2, 3, 4, 5, 6, 7, 8, 9 };   // all 9 values are possible
+        valueText.setString(" ");
+    }
+    cellRect.setFillColor(aStateColor[state]);
 }
 
 int Cell::getValue() const

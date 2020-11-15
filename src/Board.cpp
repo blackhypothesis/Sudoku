@@ -5,7 +5,7 @@ Board::Board()
     // graphic
     // ----------------------------------------------------------------------------
     offset = sf::Vector2f(20, 20);
-    regionSeparatorColor = sf::Color(27, 84, 148);
+    regionSeparatorColor = sf::Color(207, 224, 248);
     cellSize = sf::Vector2f(80.0f, 80.0f);
     cellDistance = sf::Vector2f(7.0f, 7.0f);
 
@@ -387,7 +387,6 @@ bool Board::mouseAction(sf::Vector2i mousePos, bool buttonPressed, bool buttonRe
     if (mouseActionEnabled == false && buttonReleased)
     {
         mouseActionEnabled = true;
-        setCellsToDefault();
     }
 
     return true;
@@ -413,7 +412,6 @@ void Board::performAction(std::string action)
             if (cell->getFocus())
                 cell->setValue(value);
 
-        setCellsToDefault();
         currentAction = 0;
     }
 
@@ -429,7 +427,7 @@ void Board::performAction(std::string action)
     }
 
 // perform actions step by step
-    if (action == "S")
+    if (action == "N")
     {
         switch (currentAction)
         {
@@ -469,6 +467,20 @@ void Board::performAction(std::string action)
 
         currentAction++;
         sleep = true;
+    }
+
+    if (action == "M")
+    {
+        for (auto &cell : board)
+        {
+            if (cell->getState() == NAKED_SINGLE || cell->getState() == HIDDEN_SINGLE)
+            {
+                cell->setValue(cell->getPossibleValuesApproved()[0]);
+            }
+        }
+
+        setCellsToDefault();
+        currentAction = 0;
     }
 
     if (action == "R")
