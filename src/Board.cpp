@@ -354,24 +354,37 @@ bool Board::searchForHiddenPairs()
 
                                 for (unsigned int clusterType = 0; clusterType < aClusterPossibleValueCount.size(); clusterType++)
                                 {
-                                    for (auto &testCell : board)
+                                    for (auto &cell : board)
                                     {
-                                        std::array<unsigned int, 3> cellClusterNumber = testCell->getClusterNumbers();
-                                        CellState cellState = testCell->getState();
-                                        int cellIndex = testCell->getIndex();
-                                        bool containsV1 = testCell->containsPossibleValues(std::vector<int>
-                                        { v1, v2 });
-                                        bool containsV2 = testCell->containsPossibleValues(std::vector<int>
-                                        { v2 });
+                                        std::array<unsigned int, 3> cellClusterNumber = cell->getClusterNumbers();
+                                        CellState cellState = cell->getState();
+                                        int cellIndex = cell->getIndex();
 
-                                        if (cellState == EMPTY && cellClusterNumber[clusterType] == cellHiddenPairCandidateClusterNumber[clusterType]
+                                        if (cellClusterNumber[clusterType] == cellHiddenPairCandidateClusterNumber[clusterType]
                                                 && cellIndex != vecCellHiddenPairCandidates[0]->getIndex()
-                                                && cellIndex != vecCellHiddenPairCandidates[1]->getIndex() && testCell->containsPossibleValues(std::vector<int>
+                                                && cellIndex != vecCellHiddenPairCandidates[1]->getIndex() && cell->containsPossibleValues(std::vector<int>
                                                 { v1, v2 }))
                                         {
                                             isHiddenPair = false;
                                         }
                                     }
+                                }
+                            }
+
+                            // check if v1 or v2 are NOT in a cell, which belongs to the same cluster as the two candidates
+                            for (auto &cell : board)
+                            {
+                                std::array<unsigned int, 3> cellClusterNumber = cell->getClusterNumbers();
+                                CellState cellState = cell->getState();
+                                int cellIndex = cell->getIndex();
+
+                                if (cellClusterNumber[clusterType] == vecCellHiddenPairCandidates[0]->getClusterNumbers()[clusterType]
+                                        && cellIndex != vecCellHiddenPairCandidates[0]->getIndex() && cellIndex != vecCellHiddenPairCandidates[1]->getIndex()
+                                        && (cell->containsPossibleValues(std::vector<int>
+                                        { v1 }) || cell->containsPossibleValues(std::vector<int>
+                                        { v2 })))
+                                {
+                                    isHiddenPair = false;
                                 }
                             }
 
