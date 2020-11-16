@@ -95,6 +95,7 @@ public:
     std::vector<int> getPossibleValuesApproved() const;
 
     void setPossibleValuesDiscarded(std::vector<int>);
+    void setPossibleValuesDiscardedIfNotApproved();
     std::vector<int> getPossibleValuesDiscarded() const;
     void addPossibleValuesDiscarded(std::vector<int>);
     void removePossibeValuesDiscarded();

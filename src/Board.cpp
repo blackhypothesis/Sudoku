@@ -239,6 +239,9 @@ bool Board::searchForHiddenSingles()
                                         }
                                     }
                                 }
+
+                                // mark the values in the cell, which are not approved as discarded
+                                cell->setPossibleValuesDiscardedIfNotApproved();
                             }
                         }
                     }
@@ -344,7 +347,7 @@ bool Board::searchForHiddenPairs()
                         // if exactly 2 cells have the same 2 values -> found a HIDDEN_PAIR candidate
                         if (vecCellHiddenPairCandidates.size() == 2)
                         {
-                            // check if the 2 values are only in this 2 HIDDEN_PAIR candidate
+                            // check if the 2 values together are only in this 2 HIDDEN_PAIR candidate
                             // check in all clusters, where this 2 candidates belong to
                             bool isHiddenPair = true;
 
@@ -357,7 +360,6 @@ bool Board::searchForHiddenPairs()
                                     for (auto &cell : board)
                                     {
                                         std::array<unsigned int, 3> cellClusterNumber = cell->getClusterNumbers();
-                                        CellState cellState = cell->getState();
                                         int cellIndex = cell->getIndex();
 
                                         if (cellClusterNumber[clusterType] == cellHiddenPairCandidateClusterNumber[clusterType]
@@ -375,7 +377,6 @@ bool Board::searchForHiddenPairs()
                             for (auto &cell : board)
                             {
                                 std::array<unsigned int, 3> cellClusterNumber = cell->getClusterNumbers();
-                                CellState cellState = cell->getState();
                                 int cellIndex = cell->getIndex();
 
                                 if (cellClusterNumber[clusterType] == vecCellHiddenPairCandidates[0]->getClusterNumbers()[clusterType]
@@ -395,6 +396,10 @@ bool Board::searchForHiddenPairs()
                                     cell->setState(HIDDEN_PAIR);
                                     cell->setPossibleValuesApproved(std::vector<int>
                                     { v1, v2 });
+
+                                    // mark the values as discarded which are nor part of the NAKED_PAIR
+
+                                    cell->setPossibleValuesDiscardedIfNotApproved();
                                 }
                             }
                         }
@@ -468,9 +473,16 @@ void Board::performAction(std::string action)
         cleanupPossibleValues();
         checkCellValueIntegrity();
         searchForNakedSingles();
+        removePossibleValuesDiscarded();
+        searchForHiddenSingles();
+        removePossibleValuesDiscarded();
         searchForNakedPairs();
         removePossibleValuesDiscarded();
-        // searchForHiddenPairs();
+        searchForHiddenPairs();
+        removePossibleValuesDiscarded();
+        //searchForNakedSingles();
+        //removePossibleValuesDiscarded();
+        sleep = true;
     }
 
 // perform actions step by step
@@ -539,7 +551,7 @@ void Board::performAction(std::string action)
 
 // sleep, otherwise the actions will be executed too fast
     if (sleep)
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 // graphic

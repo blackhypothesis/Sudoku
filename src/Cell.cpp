@@ -23,9 +23,9 @@ Cell::Cell(sf::Font &fc) :
     sf::Color(80, 30, 30),   // E_NOPOSSIBLEVALUE
     sf::Color(45, 103, 113), // SOLVED
     sf::Color(45, 92, 67),   // NAKED_SINGLE
-    sf::Color(21, 63, 35),     // HIDDEN_SINGLE
-    sf::Color(20, 20, 120),  // NAKED_PAIR
-    sf::Color(150, 20, 20),   // HIDDEN_PAIR
+    sf::Color(21, 63, 35),   // HIDDEN_SINGLE
+    sf::Color(30, 30, 210),  // NAKED_PAIR
+    sf::Color(20, 20, 120), // HIDDEN_PAIR
     sf::Color(20, 120, 120), // NAKED_TRIPPLE
     sf::Color(20, 80, 80),   // HIDDEN_TRIPPLE
     sf::Color(20, 80, 20),   // NAKED_QUAD
@@ -231,6 +231,21 @@ void Cell::setPossibleValuesDiscarded(std::vector<int> vecPossibleValuesDiscarde
         aDrawPossibleValue[pv - 1].valueColor = possibleValueDiscardedColor;
         aDrawPossibleValue[pv - 1].valueText.setFillColor(possibleValueDiscardedColor);
     }
+}
+
+void Cell::setPossibleValuesDiscardedIfNotApproved()
+{
+    std::vector<int> vecPVD;
+
+    for (auto pv : vecPossibleValues)
+    {
+        auto it = std::find(vecPossibleValuesApproved.begin(), vecPossibleValuesApproved.end(), pv);
+        if (it == vecPossibleValuesApproved.end())
+            vecPVD.push_back(pv);
+    }
+
+    if (vecPVD.size() > 0)
+        setPossibleValuesDiscarded(vecPVD);
 }
 
 void Cell::addPossibleValuesDiscarded(std::vector<int> vecPV)
